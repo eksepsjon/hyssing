@@ -1,26 +1,34 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <GetData v-if="!dataOk" msg="Welcome to Your Vue.js App" v-on:data="dataReady"/>
+    <ProcessData v-else v-bind:data="data" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import GetData from './components/GetData.vue'
+import ProcessData from './components/ProcessData.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    GetData,
+    ProcessData
+  },
+  data: function() {
+    return {data: "", dataOk: false};
+  },
+  methods: {
+    dataReady: function(data) {
+      this.data = data;
+      this.dataOk = true;
+    }
   }
 }
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
   margin-top: 60px;
 }
