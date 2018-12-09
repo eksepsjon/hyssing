@@ -1,13 +1,12 @@
 <template>
   <div class="get-data">
-    <h1>Hand Me Some Data to Process</h1>
     <textarea placeholder="Paste some data here!" @paste="dataPasted"></textarea>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'GetData',
+  name: 'DataEntry',
   data: function() {
     return {};
   },
@@ -22,8 +21,8 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 textarea {
-    width: 400px;
-    height: 200px;
+    width: 500px;
+    height: 100px;
     font-size: 20px;
     padding: 20px;
     border-radius: 15px;

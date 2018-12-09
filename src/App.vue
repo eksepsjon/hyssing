@@ -1,26 +1,26 @@
 <template>
   <div id="app">
-    <GetData v-if="!dataOk" msg="Welcome to Your Vue.js App" v-on:data="dataReady"/>
-    <ProcessData v-else v-bind:data="data" />
+    <DataEntry v-if="!dataOk" v-on:data="dataReady"/>
+    <ProcessData v-else :sourceData="sourceData" />
   </div>
 </template>
 
 <script>
-import GetData from './components/GetData.vue'
+import DataEntry from './components/DataEntry.vue'
 import ProcessData from './components/ProcessData.vue'
 
 export default {
   name: 'app',
   components: {
-    GetData,
+    DataEntry,
     ProcessData
   },
   data: function() {
-    return {data: "", dataOk: false};
+    return {sourceData: "", dataOk: false};
   },
   methods: {
-    dataReady: function(data) {
-      this.data = data;
+    dataReady: function(sourceData) {
+      this.sourceData = sourceData;
       this.dataOk = true;
     }
   }
