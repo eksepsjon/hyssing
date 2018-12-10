@@ -1,20 +1,30 @@
 <template>
-  <div><input type="text" placeholder="Enter transform command" v-model="currentTransform" /></div>
+    <div>
+        <div class="coluxmns">
+        <input class="coluxmn" type="text" placeholder="Enter transform command" v-model="transform" v-on:keyup.enter="saveTransform"/>
+        <div class="colxumn">{{validationResult ? validationResult.text : ''}}</div>
+        </div>
+    </div>
 </template>
 
 <script>
+
 export default {
   name: 'TransformEntry',
+  props: ["validationResult"],
   data: function() {
-    return {"currentTransform": ""};
+      return {transform: ""};
   },
   methods: {
-    
+    saveTransform: function() {
+        if (this.validationResult.ok) {
+            this.$emit('save', this.transform);
+        }
+    }
   },
   watch: {
-    currentTransform: function() {
-        this.$emit('update', this.currentTransform);
-        // or generate/simulate a native events (not sure how, but its outside Vue's realm I think
+    transform: function() {
+        this.$emit('update', this.transform);
     }
 }
 }
@@ -26,9 +36,11 @@ input {
     border: 0px;
     background: transparent;
     color: #FFF;
-    padding: 0px 20px;
+    padding: 4px 20px;
     width: 100%;
     height: 100%;
+    font-size: 26px;
+    font-family: monospace;
 }
 input:focus{
     outline: none;
