@@ -19,6 +19,7 @@ export default {
     saveTransform: function() {
         if (this.validationResult.ok) {
             this.$emit('save', this.transform);
+            this.transform = "";
         }
     }
   },

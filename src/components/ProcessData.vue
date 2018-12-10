@@ -31,10 +31,13 @@ export default {
   methods: {
     transformUpdate: function(transformValue) {
       this.validationResult = transformService.validateTransformOp(this.dataBox, transformValue);
+      if (transformService.validateTransformOp(this.dataBox, transformValue).ok) {
+        transformService.preview(this.dataBox, transformValue);
+      }
     },
     transformSave: function(transformValue) {
       if (transformService.validateTransformOp(this.dataBox, transformValue).ok) {
-        transformService.transform(this.dataBox, transformValue);
+        transformService.append(this.dataBox, transformValue);
       }
     }
   }
