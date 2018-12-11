@@ -3,6 +3,7 @@
     <DataView class="data-view" id="previous-data" :data="dataBox.beforeData" />
     <DataView class="data-view" id="preview-data" :data="dataBox.afterData" />
     <TransformEntry id="transform-entry" :validationResult="validationResult" @update="transformUpdate" @save="transformSave"/>
+    <div id="validation-result" v-if="validationResult && !validationResult.ok">{{ validationResult.text }}</div>
   </div>
 </template>
 
@@ -66,5 +67,18 @@ export default {
 #preview-data {
   left: calc(50%);
   top: 0px;
+}
+#validation-result {
+    position: absolute;
+    left: 55%;
+    width: 40%;
+    text-align: center;
+    top: 50%;
+    margin-top: -35px;
+    border: 2px solid #F00;
+    background: rgba(64, 0,0, 0.5);
+    font-size: 24px;
+    font-family: monospace;
+    padding: 30px 0px;
 }
 </style>

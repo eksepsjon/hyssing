@@ -1,9 +1,6 @@
 <template>
     <div>
-        <div class="coluxmns">
         <input class="coluxmn" type="text" placeholder="Enter transform command" v-model="transform" v-on:keyup.enter="saveTransform"/>
-        <div class="colxumn">{{validationResult ? validationResult.text : ''}}</div>
-        </div>
     </div>
 </template>
 

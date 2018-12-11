@@ -15,11 +15,30 @@ $link-hover: lighten($link, 30%);
 // Import only what you need from Bulma
 @import "../../node_modules/bulma/bulma.sass";
 
-    
+h1.title
+    color: $primary;
+table
+    width: 100%;
+td, th
+    background: #21252B;
+    color: #9098A6;
+    border-right: 3px solid $background-color;
+    border-bottom: 3px solid $background-color;
 
+pre
+    background: inherit;
+    color: inherit;
+    padding: 0px;
 
-
-pre 
-    background: #000;
-    color: #FFF;
-    
+::-webkit-scrollbar-corner
+    background: darken( $background-color, 5%);
+::-webkit-scrollbar
+    width: 10px;
+    height: 10px;
+    background: darken( $background-color, 5%);
+::-webkit-scrollbar-track
+    background: darken( $background-color, 5%);
+::-webkit-scrollbar-thumb
+    background: lighten($background-color, 10%);
+::-webkit-scrollbar-thumb:hover
+    background: lighten($background-color, 30%);
