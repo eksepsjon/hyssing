@@ -1,10 +1,13 @@
 import KeepLines from './transforms/KeepLines'
 import Trim from './transforms/Trim'
 import Replace from './transforms/Replace'
+import TextToJson from './transforms/TextToJson'
+import SplitColumn from './transforms/SplitColumn';
+import JoinColumn from './transforms/JoinColumn';
 
 export default class TransformService {
     get transforms() {
-        return [new KeepLines(), new Trim(), new Replace()];
+        return [new KeepLines(), new Trim(), new Replace(), new TextToJson(), new SplitColumn(), new JoinColumn()];
     }
     createInitialData(initialValue) {
         return {sourceData: this.sourceData,
@@ -49,6 +52,8 @@ export default class TransformService {
         }
 
         dataBox.transforms.push(transformOp);
+        dataBox.beforeData.columns = dataBox.afterData.columns;
+        dataBox.beforeData.type = dataBox.afterData.type;
         
         this.transform(dataBox, "");
     }
