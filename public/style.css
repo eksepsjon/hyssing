@@ -6746,6 +6746,9 @@ label.panel-block {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
 
+html, body {
+  overflow: hidden; }
+
 h1.title {
   color: #15A4C3; }
 

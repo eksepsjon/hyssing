@@ -51,7 +51,7 @@ export default {
   width: 100%;
   top: calc(100% - 40px);
   left: 0px;
-  height: 34px;
+  height: 40px;
   border-top: 1px solid #474A4F;
 }
 .data-view {
