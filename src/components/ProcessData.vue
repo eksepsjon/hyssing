@@ -3,7 +3,7 @@
     <DataView class="data-view" id="previous-data"  :header="'Current'" :data="dataBox.beforeData" />
     <DataView class="data-view" id="preview-data" :header="'Preview'" :data="dataBox.afterData" />
     <TransformEntry id="transform-entry" :validationResult="validationResult" @update="transformUpdate" @save="transformSave"/>
-    <div id="validation-result" :class="{ok: validationResult.ok}" v-if="validationResult ">{{ validationResult.ok ? 'Ok' : validationResult.text }}</div>
+    <div id="validation-result" :class="{ok: (!validationResult || validationResult.ok)}">{{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}</div>
   </div>
 </template>
 
