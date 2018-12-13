@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input type="text" placeholder="Enter transform command" v-model="transform" v-on:keyup.enter="saveTransform"/>
+        <input type="text" autofocus placeholder="Enter transform command" v-model="transform" v-on:keyup.enter="saveTransform"/>
     </div>
 </template>
 

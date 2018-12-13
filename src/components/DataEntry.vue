@@ -1,7 +1,7 @@
 <template>
   <div class="get-data">
-    <h1 class="title">hyssing</h1>
-    <textarea placeholder="Paste some data here!" @paste="dataPasted"></textarea>
+    <h1 class="title">🦍 hyssing</h1>
+    <textarea placeholder="Paste some data here!" autofocus @paste="dataPasted"></textarea>
   </div>
 </template>
 
