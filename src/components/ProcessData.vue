@@ -1,9 +1,9 @@
 <template>
   <div class="process-data">
-    <DataView class="data-view" id="previous-data" :data="dataBox.beforeData" />
-    <DataView class="data-view" id="preview-data" :data="dataBox.afterData" />
+    <DataView class="data-view" id="previous-data"  :header="'Current'" :data="dataBox.beforeData" />
+    <DataView class="data-view" id="preview-data" :header="'Preview'" :data="dataBox.afterData" />
     <TransformEntry id="transform-entry" :validationResult="validationResult" @update="transformUpdate" @save="transformSave"/>
-    <div id="validation-result" v-if="validationResult && !validationResult.ok">{{ validationResult.text }}</div>
+    <div id="validation-result" :class="{ok: validationResult.ok}" v-if="validationResult ">{{ validationResult.ok ? 'Ok' : validationResult.text }}</div>
   </div>
 </template>
 
@@ -65,20 +65,28 @@ export default {
   border-right: 1px solid #474A4F;
 }
 #preview-data {
-  left: calc(50%);
+  left: calc(50% + 6px);
+  width: calc(50% - 6px);
   top: 0px;
 }
 #validation-result {
     position: absolute;
-    left: 55%;
-    width: 40%;
+    left: 10%;
+    width: 80%;
+    bottom: 40px;
     text-align: center;
-    top: 50%;
-    margin-top: -35px;
-    border: 2px solid #F00;
-    background: rgba(64, 0,0, 0.5);
-    font-size: 24px;
+    border: 1px solid #F00;
+    border-bottom: 0px solid #FFF;
+    background: rgba(128, 0,0, 0.25);
+    font-size: 16px;
     font-family: monospace;
-    padding: 30px 0px;
+    padding: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    transition: transform 0.4s, opacity 0.4s;
+}
+#validation-result.ok {
+  transform: translateY(100px);
+  opacity: 0;
 }
 </style>

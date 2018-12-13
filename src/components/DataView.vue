@@ -2,6 +2,9 @@
   <div>
     <table class="data-view">
       <tr>
+        <th colspan="99999">{{header}}</th>
+      </tr>
+      <tr>
         <th v-for="n in  1 + localData.columns" :key="n">{{ n > 1 ? n - 1 : '' }}</th>
       </tr>
       <tr v-for="(row, index) in localData.rows" :key="index">
@@ -15,7 +18,7 @@
 <script>
 export default {
   name: 'DataView',
-  props: ["data"],
+  props: ["data", "header"],
   data: function() {
     return {
         localData: this.data
@@ -26,7 +29,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-    td {
+    td, th {
         padding: 5px;
     }
     div {

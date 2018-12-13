@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input class="coluxmn" type="text" placeholder="Enter transform command" v-model="transform" v-on:keyup.enter="saveTransform"/>
+        <input type="text" placeholder="Enter transform command" v-model="transform" v-on:keyup.enter="saveTransform"/>
     </div>
 </template>
 
@@ -30,6 +30,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+div {
+    background: #000;
+}
 input {
     border: 0px;
     background: transparent;
@@ -37,7 +40,7 @@ input {
     padding: 4px 20px;
     width: 100%;
     height: 100%;
-    font-size: 26px;
+    font-size: 20px;
     font-family: monospace;
 }
 input:focus{
