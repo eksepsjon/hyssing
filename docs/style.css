@@ -239,7 +239,7 @@ th {
   text-align: left; }
 
 html {
-  background-color: #282C34;
+  background-color: #1E1E1E;
   font-size: 16px;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -6746,6 +6746,9 @@ label.panel-block {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
 
+html, body {
+  overflow: hidden; }
+
 h1.title {
   color: #15A4C3; }
 
@@ -6754,10 +6757,13 @@ table {
 
 td,
 th {
-  background: #21252B;
-  color: #9098A6;
-  border-right: 3px solid #282C34;
-  border-bottom: 3px solid #282C34; }
+  background: #2D2D2D;
+  color: #FFF;
+  border-right: 5px solid #1E1E1E;
+  border-bottom: 5px solid #1E1E1E; }
+
+table th {
+  color: #888; }
 
 pre {
   background: inherit;
@@ -6765,18 +6771,18 @@ pre {
   padding: 0px; }
 
 ::-webkit-scrollbar-corner {
-  background: #1d2026; }
+  background: #111111; }
 
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
-  background: #1d2026; }
+  background: #111111; }
 
 ::-webkit-scrollbar-track {
-  background: #1d2026; }
+  background: #111111; }
 
 ::-webkit-scrollbar-thumb {
-  background: #3e4451; }
+  background: #383838; }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6b758a; }
+  background: #6b6b6b; }
