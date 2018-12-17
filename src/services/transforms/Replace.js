@@ -1,7 +1,7 @@
 export default class Replace {
     
     matches(transformOp) {
-        return transformOp.startsWith("replace ");
+        return transformOp.startsWith("replace");
     }
     
     validate(dataBox, transformOp) {

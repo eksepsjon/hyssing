@@ -7,7 +7,7 @@ import JoinColumn from './transforms/JoinColumn';
 
 export default class TransformService {
     get transforms() {
-        return [new KeepLines(), new Trim(), new Replace(), new TextToJson(), new SplitColumn(), new JoinColumn()];
+        return [new KeepLines(), new Trim(), new Replace(), new Substring(), new TextToJson(), new SplitColumn(), new JoinColumn()];
     }
     createInitialData(initialValue) {
         return {sourceData: this.sourceData,
