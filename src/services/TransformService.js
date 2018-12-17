@@ -4,6 +4,7 @@ import Replace from './transforms/Replace'
 import TextToJson from './transforms/TextToJson'
 import SplitColumn from './transforms/SplitColumn';
 import JoinColumn from './transforms/JoinColumn';
+import Substring from './transforms/Substring';
 
 export default class TransformService {
     get transforms() {
