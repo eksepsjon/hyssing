@@ -21,6 +21,8 @@ export default class Substring {
                 if (splt.length > 1) {
                     remEnd = parseInt(splt[1]);
                 }
+            } else if (args.length > 0) {
+                remStart = parseInt(args);
             }
     
             if (args.length === 0) {
@@ -45,6 +47,8 @@ export default class Substring {
             if (splt.length > 1) {
                 remEnd = parseInt(splt[1]);
             }
+        } else if (args.length > 0) {
+            remStart = parseInt(args);
         }
 
         var newRows = [];
