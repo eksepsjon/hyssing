@@ -28,6 +28,10 @@ export default class Substring {
             if (args.length === 0) {
                 return {"text": "No arguments.", "ok": false};
             }
+    
+            if (remStart < 0 || remEnd < 0) {
+                return {"text": "Argument cannot be less than 0.", "ok": false};
+            }
         } catch (err) {
             return {"text": "Error while parsing arguments: '" + err.message + "'", "ok": false};
         }
@@ -56,15 +60,11 @@ export default class Substring {
             var row = [];
             for (var x = 0; x < dataBox.beforeData.rows[y].length; x++) {
                 var s = dataBox.beforeData.rows[y][x];
-                try {
-                    if(remStart > 0) {
-                        s = s.substring(remStart, s.length);
-                    }
-                    if(remEnd > 0) {
-                        s = s.substring(0, s.length - remEnd);
-                    }
-                } catch (err) {
-
+                if(remStart > 0 && remStart <= s.length) {
+                    s = s.substring(remStart, s.length);
+                }
+                if(remEnd > 0 && remEnd <= s.length) {
+                    s = s.substring(0, s.length - remEnd);
                 }
                 row.push(s);
             }
