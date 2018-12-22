@@ -1,7 +1,20 @@
 <template>
   <div class="get-data">
-    <h1 class="title">🦍 hyssing</h1>
-    <textarea placeholder="Paste some data here!" autofocus @paste="dataPasted"></textarea>
+    <h1 class="title">☕ hyssing ☕</h1>
+    <div class="container">
+      <div class="columns">
+        <div class="column">
+          <textarea placeholder="Paste some data here!" autofocus @paste="dataPasted"></textarea>
+        </div>
+        <div class="column">
+          - or -
+        </div>
+        <div class="column">
+          <textarea v-model="typedData" placeholder="Type some data here!"></textarea>
+          <button v-on:click="processData()" class="button is-primary">Process</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -9,11 +22,14 @@
 export default {
   name: 'DataEntry',
   data: function() {
-    return {};
+    return {typedData: "xx"};
   },
   methods: {
       dataPasted: function(event) {
           this.$emit("data", event.clipboardData.getData("text"));
+      },
+      processData: function() {
+          this.$emit("data", this.typedData);
       }
   }
 }
@@ -26,10 +42,16 @@ div {
   margin-top: 30px;
 }
 textarea {
-    width: 500px;
-    height: 100px;
+    width: 100%;
+    height: 200px;
     font-size: 20px;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 5px;
+}
+.column:first-child textarea {
+    height: 240px;
+}
+.button {
+    width: 100%;
 }
 </style>

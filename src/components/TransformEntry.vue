@@ -41,7 +41,6 @@ input {
     width: 100%;
     height: 100%;
     font-size: 20px;
-    font-family: monospace;
 }
 input:focus{
     outline: none;

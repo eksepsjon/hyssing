@@ -6749,6 +6749,11 @@ label.panel-block {
 html, body {
   overflow: hidden; }
 
+* {
+  font-family: 'Inconsolata', monospace !important;
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto; }
+
 h1.title {
   color: #2151da; }
 
@@ -6757,10 +6762,9 @@ table {
 
 td,
 th {
-  background: #2D2D2D;
   color: #FFF;
-  border-right: 5px solid #1E1E1E;
-  border-bottom: 5px solid #1E1E1E; }
+  border: 1px solid #2151da;
+  padding: 5px; }
 
 table th {
   color: #888; }
@@ -6771,10 +6775,15 @@ pre {
   padding: 0px; }
 
 tr.header th {
-  background: #2151da;
-  color: #FFF;
-  border-right: 5px solid #2151da;
-  border-bottom: 5px solid #2151da; }
+  color: #2151da; }
+
+.get-data textarea {
+  border: 3px solid #2151da;
+  background: #2b2b2b;
+  color: #FFF; }
+
+.get-data .title {
+  font-size: 6rem; }
 
 ::-webkit-scrollbar-corner {
   background: #111111; }

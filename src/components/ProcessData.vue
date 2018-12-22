@@ -56,18 +56,17 @@ export default {
 }
 .data-view {
   position: absolute;
-  width: calc(50%);
-  height: calc(100% - 40px);
+  height: calc(100% - 80px);
 }
 #previous-data {
-  left: 0px;
-  top: 0px;
-  border-right: 1px solid #474A4F;
+  left: 20px;
+  width: calc(50% - 30px);
+  top: 20px;
 }
 #preview-data {
-  left: calc(50% + 6px);
-  width: calc(50% - 6px);
-  top: 0px;
+  left: calc(50% + 10px);
+  width: calc(50% - 40px);
+  top: 20px;
 }
 #validation-result {
     position: absolute;
