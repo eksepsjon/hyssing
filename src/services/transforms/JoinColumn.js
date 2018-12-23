@@ -1,7 +1,12 @@
 export default class JoinColumn {
     
-    matches(transformOp) {
-        return transformOp.startsWith("join column");
+    info() {
+        return {
+            "prefix": "join column", 
+            "command": "join column <Join String> <optional Column #> .. <optional Column #>",
+            "applicable": ["text"],
+            "text": "Merge columns with <Join String>. Optionally select which columns to merge, otherwise all columns are merged."
+        }
     }
     
     validate(dataBox, transformOp) {
@@ -13,21 +18,21 @@ export default class JoinColumn {
         var columns = [];
         
         try {
-            var regex = transformOp.substring("join column".length, transformOp.length).trim();
+            var joinString = transformOp.substring("join column".length, transformOp.length).trim();
 
-            if (regex.indexOf(" ") > 0) {
-                var splt = regex.split(" ")
-                regex = splt[0].trim();
+            if (joinString.indexOf(" ") > 0) {
+                var splt = joinString.split(" ")
+                joinString = splt[0].trim();
                 for (var n = 1; n < splt.length; n++) {
                     columns.push(splt[n]);
                 }
             }
     
-            if (regex.length === 0) {
-                return {"text": "Regex is empty.", "ok": false};
+            if (joinString.length === 0) {
+                return {"text": "Joint string is empty.", "ok": false};
             }
         } catch (err) {
-            return {"text": "Error while parsing regex: '" + err.message + "'", "ok": false};
+            return {"text": "Error while parsing joinString: '" + err.message + "'", "ok": false};
         }
         
         try {
@@ -46,22 +51,22 @@ export default class JoinColumn {
     }
     
     transform(dataBox, transformOp) {
-        var regex = transformOp.substring("join column".length, transformOp.length).trim();
+        var joinString = transformOp.substring("join column".length, transformOp.length).trim();
         
         
         var columns = [];
         var columnMap = {};
 
-        if (regex.indexOf(" ") > 0) {
-            var splt = regex.split(" ")
-            regex = splt[0].trim();
+        if (joinString.indexOf(" ") > 0) {
+            var splt = joinString.split(" ")
+            joinString = splt[0].trim();
             for (var nx = 1; nx < splt.length; nx++) {
                 columnMap[parseInt(splt[nx]) - 1] = true;
                 columns.push(parseInt(splt[nx]) - 1);
             }
         }
 
-        regex = regex.replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t");
+        joinString = joinString.replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t");
 
         var newRows = [];
         var maxColumns = 0;
@@ -81,7 +86,7 @@ export default class JoinColumn {
                 }
             }
             if (mergeIndex >= 0) {
-                row.splice(mergeIndex, 0, merge.join(regex));
+                row.splice(mergeIndex, 0, merge.join(joinString));
             }
             maxColumns = Math.max(row.length, maxColumns);
             newRows.push(row);

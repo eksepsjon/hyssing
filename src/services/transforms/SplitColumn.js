@@ -1,7 +1,12 @@
 export default class SplitColumn {
     
-    matches(transformOp) {
-        return transformOp.startsWith("split column");
+    info() {
+        return {
+            "prefix": "split column",
+            "command": "split column <Regex> <optional Column #>",
+            "applicable": ["text"],
+            "text": "Split each column into columns where the regex matches. If <Column #> is set only that column is split."
+        }
     }
     
     validate(dataBox, transformOp) {

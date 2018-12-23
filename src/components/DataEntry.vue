@@ -22,7 +22,7 @@
 export default {
   name: 'DataEntry',
   data: function() {
-    return {typedData: "xx"};
+    return {typedData: ""};
   },
   methods: {
       dataPasted: function(event) {

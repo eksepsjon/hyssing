@@ -1,7 +1,17 @@
 export default class KeepLines {
-    
-    matches(transformOp) {
-        return transformOp.startsWith("keep lines ") || transformOp.startsWith("drop lines ");
+
+    info() {
+        return [{
+            "prefix": "keep lines", 
+            "command": "keep lines <Regex>",
+            "applicable": ["text"],
+            "text": "Keep lines that match the regex."
+        }, {
+            "prefix": "drop lines", 
+            "command": "drop lines <Regex>",
+            "applicable": ["text"],
+            "text": "Drop lines that match the regex."
+        }]
     }
     
     validate(dataBox, transformOp) {

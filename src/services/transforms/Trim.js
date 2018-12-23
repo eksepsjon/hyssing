@@ -1,7 +1,12 @@
-export default class KeepLines {
-    
-    matches(transformOp) {
-        return transformOp.startsWith("trim");
+export default class Trim {
+
+    info() {
+        return {
+            "prefix": "trim",
+            "command": "trim <optional left | right | both>",
+            "applicable": ["text"],
+            "text": "Removes whitespace from the left, right or both sides. Both is default."
+        }
     }
     
     validate(dataBox, transformOp) {

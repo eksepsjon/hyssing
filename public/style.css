@@ -6780,7 +6780,8 @@ tr.header th {
 .get-data textarea {
   border: 3px solid #2151da;
   background: #2b2b2b;
-  color: #FFF; }
+  color: #FFF;
+  border-style: dashed; }
 
 .get-data .title {
   font-size: 6rem; }

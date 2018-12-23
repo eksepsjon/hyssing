@@ -1,7 +1,12 @@
 export default class Substring {
     
-    matches(transformOp) {
-        return transformOp.startsWith("substring");
+    info() {
+        return {
+            "prefix": "substring",
+            "command": "substring <Num chars left> <optional Num chars right>",
+            "applicable": ["text"],
+            "text": "Remove N characters starting from the left, and M number of characters from the right."
+        }
     }
     
     validate(dataBox, transformOp) {

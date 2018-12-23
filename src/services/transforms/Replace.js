@@ -1,7 +1,12 @@
 export default class Replace {
     
-    matches(transformOp) {
-        return transformOp.startsWith("replace");
+    info() {
+        return {
+            "prefix": "replace",
+            "command": "replace <Regex> <optional Replacement>",
+            "applicable": ["text"],
+            "text": "Replace all characters matching regex with replacement."
+        }
     }
     
     validate(dataBox, transformOp) {

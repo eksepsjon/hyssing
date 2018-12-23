@@ -3,7 +3,9 @@
     <DataView class="data-view" id="previous-data"  :header="'Current'" :data="dataBox.beforeData" />
     <DataView class="data-view" id="preview-data" :header="'Preview'" :data="dataBox.afterData" />
     <TransformEntry id="transform-entry" :validationResult="validationResult" @update="transformUpdate" @save="transformSave"/>
-    <div id="validation-result" :class="{ok: (!validationResult || validationResult.ok)}">{{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}</div>
+    <div id="validation-result" :class="{ok: (!validationResult || validationResult.ok), unknown: (!validationResult || validationResult.unknownCommand)}">
+        {{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}
+    </div>
   </div>
 </template>
 
@@ -82,10 +84,14 @@ export default {
     padding: 5px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    transition: transform 0.4s, opacity 0.4s;
+    transition: transform 0.4s, opacity 0.4s, background-color 0.2s, border-color 0.2s, height 0.2s;
 }
 #validation-result.ok {
   transform: translateY(100px);
   opacity: 0;
+}
+#validation-result.unknown {
+    border: 1px solid #08F;
+    background: rgba(0, 64, 128, 0.25);
 }
 </style>

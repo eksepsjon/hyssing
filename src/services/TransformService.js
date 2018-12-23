@@ -10,6 +10,23 @@ export default class TransformService {
     get transforms() {
         return [new KeepLines(), new Trim(), new Replace(), new Substring(), new TextToJson(), new SplitColumn(), new JoinColumn()];
     }
+    get commands() {
+        var cmds = [];
+        
+        let ts = this.transforms;
+        
+        for (var n = 0; n < ts.length; n++) {
+            if (ts[n].info) {
+                var tsc = Array.isArray(ts[n].info()) ? ts[n].info() : [ts[n].info()];
+
+                for (var m = 0; m < tsc.length; m++) {
+                    cmds.push({command: tsc[m], transform: ts[n]})
+                }
+            }
+        }
+
+        return cmds;
+    }
     createInitialData(initialValue) {
         return {sourceData: this.sourceData,
             beforeData: {type: "text", columns: 1, rows: [[initialValue]]},
@@ -18,24 +35,24 @@ export default class TransformService {
     }
     
     validateTransformOp(dataBox, transformOp) {
-        let ts = this.transforms;
+        let ts = this.commands;
         
         for (var n = 0; n < ts.length; n++) {
-            if (ts[n].matches(transformOp)) {
-                return ts[n].validate(dataBox, transformOp);
+            if (transformOp.startsWith(ts[n].command.prefix)) {
+                return ts[n].transform.validate(dataBox, transformOp);
             }
         }
         
-        return {"text": "'" + transformOp + "' does not match any known command.", "ok": false};
+        return {"text": "'" + transformOp + "' does not match any known command.", "ok": false, "unknownCommand": true};
     }
     
     transform(dataBox, transformOp) {
-        let ts = this.transforms;
+        let ts = this.commands;
         
         for (var n = 0; n < ts.length; n++) {
-            if (ts[n].matches(transformOp)) {
-                if (ts[n].validate(dataBox, transformOp).ok) {
-                    ts[n].transform(dataBox, transformOp);
+            if (transformOp.startsWith(ts[n].command.prefix)) {
+                if (ts[n].transform.validate(dataBox, transformOp).ok) {
+                    ts[n].transform.transform(dataBox, transformOp);
                 }
             }
         }

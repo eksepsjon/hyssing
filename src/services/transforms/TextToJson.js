@@ -1,7 +1,12 @@
 export default class TextToJson {
     
-    matches(transformOp) {
-        return transformOp.startsWith("parse json");
+    info() {
+        return {
+            "prefix": "parse json",
+            "command": "parse json",
+            "applicable": ["text"],
+            "text": "Parses each cell as JSON and converts the datatype to JSON allowing JSON-commands."
+        }
     }
     
     validate(dataBox) {
