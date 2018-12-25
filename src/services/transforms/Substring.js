@@ -3,7 +3,7 @@ export default class Substring {
     info() {
         return {
             "prefix": "substring",
-            "command": "substring <Num chars left> <optional Num chars right>",
+            "arguments": "<Num chars left> <optional Num chars right>",
             "applicable": ["text"],
             "text": "Remove N characters starting from the left, and M number of characters from the right."
         }

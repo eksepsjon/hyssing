@@ -3,7 +3,7 @@ export default class TextToJson {
     info() {
         return {
             "prefix": "parse json",
-            "command": "parse json",
+            "arguments": "",
             "applicable": ["text"],
             "text": "Parses each cell as JSON and converts the datatype to JSON allowing JSON-commands."
         }

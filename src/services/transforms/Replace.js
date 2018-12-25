@@ -3,7 +3,7 @@ export default class Replace {
     info() {
         return {
             "prefix": "replace",
-            "command": "replace <Regex> <optional Replacement>",
+            "arguments": "<Regex> <optional Replacement>",
             "applicable": ["text"],
             "text": "Replace all characters matching regex with replacement."
         }

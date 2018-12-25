@@ -6,6 +6,30 @@
     <div id="validation-result" :class="{ok: (!validationResult || validationResult.ok), unknown: (!validationResult || validationResult.unknownCommand)}">
         {{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}
     </div>
+    <div id="command-help" :class="{ok: (transformValue !== 'help')}">
+      <table>
+        <tr>
+          <th>Command</th>
+          <th>Arguments</th>
+          <th>Description</th>
+          <th>Applicable</th>
+        </tr>
+        <tr v-for="cmd in commands" :key="cmd.command.prefix">
+          <td>
+            {{cmd.command.prefix}}
+          </td>
+          <td>
+            {{cmd.command.arguments}}
+          </td>
+          <td>
+            {{cmd.command.text}}
+          </td>
+          <td>
+            {{cmd.command.applicable.join(", ")}}
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -24,7 +48,7 @@ export default {
   },
   props: ["sourceData"],
   data: function() {
-    return {validationResult: null};
+    return {transformValue: '', validationResult: {ok: false, unknownCommand: true, text: "Ready"}, commands: transformService.commands};
   },
   computed: {
     dataBox: function() {
@@ -33,12 +57,14 @@ export default {
   },
   methods: {
     transformUpdate: function(transformValue) {
+      this.transformValue = transformValue;
       this.validationResult = transformService.validateTransformOp(this.dataBox, transformValue);
       if (transformService.validateTransformOp(this.dataBox, transformValue).ok) {
         transformService.preview(this.dataBox, transformValue);
       }
     },
     transformSave: function(transformValue) {
+      this.transformValue = transformValue;
       if (transformService.validateTransformOp(this.dataBox, transformValue).ok) {
         transformService.append(this.dataBox, transformValue);
       }
@@ -93,5 +119,30 @@ export default {
 #validation-result.unknown {
     border: 1px solid #08F;
     background: rgba(0, 64, 128, 0.25);
+}
+
+#command-help {
+    position: absolute;
+    left: 0px;
+    width: 100%;
+    top: 0px;
+    text-align: left;
+    border-bottom: 1px solid #FFF;
+    background: rgba(0, 0,0, 0.7);
+    font-size: 18px;
+    padding: 5px;
+    transform-origin: 0% 0%;
+    transition: transform 0.2s, opacity 0.4s, background-color 0.2s, border-color 0.2s, height 0.2s;
+}
+#command-help.ok {
+  transform: translateY(-10px) scaleY(0);
+  opacity: 0;
+}
+#command-help td, #command-help th {
+  border: 0px;
+  padding: 5px 10px;
+  border: 10px solid #000;
+  border-top: 5px solid #000;
+  border-bottom: 5px solid #000;
 }
 </style>

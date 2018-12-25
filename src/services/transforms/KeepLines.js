@@ -3,12 +3,12 @@ export default class KeepLines {
     info() {
         return [{
             "prefix": "keep lines", 
-            "command": "keep lines <Regex>",
+            "arguments": "<Regex>",
             "applicable": ["text"],
             "text": "Keep lines that match the regex."
         }, {
             "prefix": "drop lines", 
-            "command": "drop lines <Regex>",
+            "arguments": "<Regex>",
             "applicable": ["text"],
             "text": "Drop lines that match the regex."
         }]
