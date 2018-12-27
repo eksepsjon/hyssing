@@ -15,6 +15,20 @@ $link-hover: lighten($link, 30%);
 // Import only what you need from Bulma
 @import "../../node_modules/bulma/bulma.sass";
 
+#toolbar
+    background: rgb(59,0,73);
+    background: linear-gradient(170deg, rgba(59,0,73,1) 0%, rgba(33,81,218,1) 49%, rgba(0,204,199,1) 100%);
+    font-size: 22px;
+    padding: 5px;
+    height: 45px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    z-index: 100;
+
+
 html, body
     overflow: hidden;
 
@@ -25,8 +39,6 @@ html, body
 
 h1.title
     color: $primary;
-table
-    width: 100%;
 td, th
     color: #FFF;
     border: 1px solid $primary;

@@ -6746,6 +6746,19 @@ label.panel-block {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
 
+#toolbar {
+  background: #3b0049;
+  background: linear-gradient(170deg, #3b0049 0%, #2151da 49%, #00ccc7 100%);
+  font-size: 22px;
+  padding: 5px;
+  height: 45px;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  text-align: center;
+  z-index: 100; }
+
 html, body {
   overflow: hidden; }
 
@@ -6756,9 +6769,6 @@ html, body {
 
 h1.title {
   color: #2151da; }
-
-table {
-  width: 100%; }
 
 td,
 th {

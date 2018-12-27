@@ -1,39 +1,47 @@
 <template>
   <div class="process-data">
-    <DataView class="data-view" id="previous-data"  :header="'Current'" :data="dataBox.beforeData" />
-    <DataView class="data-view" id="preview-data" :header="'Preview'" :data="dataBox.afterData" />
-    <TransformEntry id="transform-entry" :validationResult="validationResult" @update="transformUpdate" @save="transformSave"/>
-    <div id="validation-result" :class="{ok: (!validationResult || validationResult.ok), unknown: (!validationResult || validationResult.unknownCommand)}">
-        {{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}
+    <div id="toolbar" :class="{dataentry: !dataOk}">
+      <span v-if="!dataOk">☕ hyssing ☕</span>
+      <TransformEntry v-if="dataOk" id="transform-entry" :validationResult="validationResult" @update="transformUpdate" @save="transformSave"/>
     </div>
-    <div id="command-help" :class="{ok: (transformValue !== 'help')}">
-      <table>
-        <tr>
-          <th>Command</th>
-          <th>Arguments</th>
-          <th>Description</th>
-          <th>Applicable</th>
-        </tr>
-        <tr v-for="cmd in commands" :key="cmd.command.prefix">
-          <td>
-            {{cmd.command.prefix}}
-          </td>
-          <td>
-            {{cmd.command.arguments}}
-          </td>
-          <td>
-            {{cmd.command.text}}
-          </td>
-          <td>
-            {{cmd.command.applicable.join(", ")}}
-          </td>
-        </tr>
-      </table>
+    <DataEntry v-if="!dataOk" v-on:data="dataReady"/>
+    <div v-if="dataOk">
+      <div id="previous-data"><DataView :header="'Current'" :data="dataBox.beforeData" /></div>
+      <div id="preview-data" v-if="(transformValue.trim() !== '' && validationResult && validationResult.ok)"><DataView :header="'Preview'" :data="dataBox.afterData" /></div>
+      
+      <div id="validation-result" :class="{ok: (transformValue.trim() === '' || !validationResult || validationResult.ok), unknown: (!validationResult || validationResult.unknownCommand)}">
+          {{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}
+      </div>
+      <div style="display: none" id="command-help">
+        <table>
+          <tr>
+            <th>Command</th>
+            <th>Arguments</th>
+            <th>Description</th>
+            <th>Applicable</th>
+          </tr>
+          <tr v-for="cmd in commands" :key="cmd.command.prefix">
+            <td>
+              {{cmd.command.prefix}}
+            </td>
+            <td>
+              {{cmd.command.arguments}}
+            </td>
+            <td>
+              {{cmd.command.text}}
+            </td>
+            <td>
+              {{cmd.command.applicable.join(", ")}}
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import DataEntry from './DataEntry.vue'
 import TransformEntry from './TransformEntry.vue'
 import DataView from './DataView.vue'
 import TransformService from './../services/TransformService';
@@ -44,11 +52,11 @@ export default {
   name: 'ProcessData',
   components: {
     TransformEntry,
-    DataView
+    DataView,
+    DataEntry
   },
-  props: ["sourceData"],
   data: function() {
-    return {transformValue: '', validationResult: {ok: false, unknownCommand: true, text: "Ready"}, commands: transformService.commands};
+    return {sourceData: "", dataOk: false, transformValue: '', validationResult: {ok: false, unknownCommand: true, text: "Ready"}, commands: transformService.commands};
   },
   computed: {
     dataBox: function() {
@@ -56,6 +64,10 @@ export default {
     }
   },
   methods: {
+    dataReady: function(sourceData) {
+      this.sourceData = sourceData;
+      this.dataOk = true;
+    },
     transformUpdate: function(transformValue) {
       this.transformValue = transformValue;
       this.validationResult = transformService.validateTransformOp(this.dataBox, transformValue);
@@ -75,74 +87,50 @@ export default {
 
 <style scoped>
 #transform-entry {
-  position: absolute;
-  width: 100%;
-  top: calc(100% - 40px);
-  left: 0px;
-  height: 40px;
-  border-top: 1px solid #474A4F;
-}
-.data-view {
-  position: absolute;
-  height: calc(100% - 80px);
+  width: 50%;
+  margin: 0px auto;
+  position: relative;
 }
 #previous-data {
-  left: 20px;
-  width: calc(50% - 30px);
-  top: 20px;
+  position: absolute;
+  top: 45px;
+  height: calc(100% - 45px);
+  left: 0px;
+  width: 100%;
+  overflow: auto;
 }
 #preview-data {
-  left: calc(50% + 10px);
-  width: calc(50% - 40px);
-  top: 20px;
+  position: absolute;
+  top: 45px;
+  height: calc(100% - 45px);
+  left: 0px;
+  width: 100%;
+  background: #000;
+  overflow: auto;
 }
 #validation-result {
     position: absolute;
-    left: 10%;
-    width: 80%;
-    bottom: 40px;
+    left: 25%;
+    width: 50%;
+    top: 45px;
     text-align: center;
-    border: 1px solid #F00;
-    border-bottom: 0px solid #FFF;
+    border: 1px solid #800;
+    border-top: 0px solid #FFF;
     background: rgba(128, 0,0, 0.25);
     font-size: 16px;
     font-family: monospace;
     padding: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     transition: transform 0.4s, opacity 0.4s, background-color 0.2s, border-color 0.2s, height 0.2s;
 }
 #validation-result.ok {
-  transform: translateY(100px);
+  transform: translateY(-100px);
   opacity: 0;
 }
 #validation-result.unknown {
     border: 1px solid #08F;
+    border-top: 0px solid #FFF;
     background: rgba(0, 64, 128, 0.25);
-}
-
-#command-help {
-    position: absolute;
-    left: 0px;
-    width: 100%;
-    top: 0px;
-    text-align: left;
-    border-bottom: 1px solid #FFF;
-    background: rgba(0, 0,0, 0.7);
-    font-size: 18px;
-    padding: 5px;
-    transform-origin: 0% 0%;
-    transition: transform 0.2s, opacity 0.4s, background-color 0.2s, border-color 0.2s, height 0.2s;
-}
-#command-help.ok {
-  transform: translateY(-10px) scaleY(0);
-  opacity: 0;
-}
-#command-help td, #command-help th {
-  border: 0px;
-  padding: 5px 10px;
-  border: 10px solid #000;
-  border-top: 5px solid #000;
-  border-bottom: 5px solid #000;
 }
 </style>

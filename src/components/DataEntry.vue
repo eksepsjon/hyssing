@@ -1,6 +1,5 @@
 <template>
   <div class="get-data">
-    <h1 class="title">☕ hyssing ☕</h1>
     <div class="container">
       <div class="columns">
         <div class="column">

@@ -1,28 +1,21 @@
 <template>
   <div id="app">
-    <DataEntry v-if="!dataOk" v-on:data="dataReady"/>
-    <ProcessData v-else :sourceData="sourceData" />
+    <ProcessData />
   </div>
 </template>
 
 <script>
-import DataEntry from './components/DataEntry.vue'
 import ProcessData from './components/ProcessData.vue'
 
 export default {
   name: 'app',
   components: {
-    DataEntry,
     ProcessData
   },
   data: function() {
-    return {sourceData: "", dataOk: false};
+    return {};
   },
   methods: {
-    dataReady: function(sourceData) {
-      this.sourceData = sourceData;
-      this.dataOk = true;
-    }
   }
 }
 </script>

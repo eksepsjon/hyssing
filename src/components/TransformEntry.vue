@@ -30,19 +30,20 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-div {
-    background: #000;
-}
 input {
     border: 0px;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.0);
     color: #FFF;
     padding: 4px 20px;
-    width: 100%;
-    height: 100%;
     font-size: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 100%;
+    border-radius: 5px;
+    transition: background-color 0.4s, border-color 0.4s;
 }
 input:focus{
     outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    background: rgba(0, 0, 0, 0.2);
 }
 </style>

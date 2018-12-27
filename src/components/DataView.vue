@@ -36,7 +36,4 @@ export default {
     th.vertical {
       text-align: right;
     }
-    div {
-      overflow: auto;
-    }
 </style>
