@@ -30,10 +30,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-    td, th {
-        padding: 5px;
-    }
-    th.vertical {
-      text-align: right;
-    }
+  table{
+    width: 100%;
+  }
+  td, th {
+      padding: 5px;
+  }
+  th.vertical {
+    text-align: right;
+  }
 </style>
