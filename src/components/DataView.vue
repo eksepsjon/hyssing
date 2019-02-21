@@ -34,9 +34,10 @@ export default {
     width: 100%;
   }
   td, th {
-      padding: 5px;
+      padding: 10px;
   }
   th.vertical {
     text-align: right;
+    width: 1%;
   }
 </style>

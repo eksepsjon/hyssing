@@ -105,7 +105,7 @@ export default {
   height: calc(100% - 45px);
   left: 0px;
   width: 100%;
-  background: #000;
+  background: #281d35;
   overflow: auto;
 }
 #validation-result {

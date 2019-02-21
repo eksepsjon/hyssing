@@ -3,13 +3,14 @@ import Trim from './transforms/Trim'
 import Replace from './transforms/Replace'
 import TextToJson from './transforms/TextToJson'
 import SplitColumn from './transforms/SplitColumn';
+import SplitRow from './transforms/SplitRow';
 import JoinColumn from './transforms/JoinColumn';
 import Substring from './transforms/Substring';
 import Copy from './transforms/Copy';
 
 export default class TransformService {
     get transforms() {
-        return [new Copy(), new KeepLines(), new Trim(), new Replace(), new Substring(), new TextToJson(), new SplitColumn(), new JoinColumn()];
+        return [new Copy(), new KeepLines(), new Trim(), new Replace(), new Substring(), new TextToJson(), new SplitRow(), new SplitColumn(), new JoinColumn()];
     }
     get commands() {
         var cmds = [];
