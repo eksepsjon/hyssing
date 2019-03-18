@@ -56,7 +56,7 @@ export default {
     DataEntry
   },
   data: function() {
-    return {sourceData: "", dataOk: false, transformValue: '', validationResult: {ok: false, unknownCommand: true, text: "Ready"}, commands: transformService.commands};
+    return {sourceData: "", dataOk: false, transformValue: '', validationResult: {ok: false, unknownCommand: true, text: ""}, commands: transformService.commands};
   },
   computed: {
     dataBox: function() {
@@ -67,6 +67,8 @@ export default {
     dataReady: function(sourceData) {
       this.sourceData = sourceData;
       this.dataOk = true;
+      this.transformValue = "split row \\n";
+      transformService.append(this.dataBox, this.transformValue);
     },
     transformUpdate: function(transformValue) {
       this.transformValue = transformValue;
