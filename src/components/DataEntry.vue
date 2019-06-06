@@ -3,7 +3,7 @@
     <div class="container">
       <div class="columns">
         <div class="column">
-          <textarea placeholder="Paste some data here!" autofocus @paste="dataPasted"></textarea>
+          <textarea placeholder="Paste some data here!" readonly="readonly" autofocus @paste="dataPasted"></textarea>
         </div>
         <div class="column">
           - or -

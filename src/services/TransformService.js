@@ -1,4 +1,4 @@
-import KeepLines from './transforms/KeepLines'
+import KeepLines from './transforms/KeepRows'
 import Trim from './transforms/Trim'
 import Replace from './transforms/Replace'
 import TextToJson from './transforms/TextToJson'
@@ -7,10 +7,13 @@ import SplitRow from './transforms/SplitRow';
 import JoinColumn from './transforms/JoinColumn';
 import Substring from './transforms/Substring';
 import Copy from './transforms/Copy';
+import Insert from './transforms/Insert';
 
 export default class TransformService {
     get transforms() {
-        return [new Copy(), new KeepLines(), new Trim(), new Replace(), new Substring(), new TextToJson(), new SplitRow(), new SplitColumn(), new JoinColumn()];
+        return [new Copy(), new KeepLines(), new Trim(), new Replace(), new Substring(),
+            new TextToJson(), new SplitRow(), new SplitColumn(), new JoinColumn(),
+            new Insert()];
     }
     get commands() {
         var cmds = [];

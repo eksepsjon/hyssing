@@ -10,10 +10,8 @@
       <div id="preview-data" v-if="(transformValue.trim() !== '' && validationResult && validationResult.ok)"><DataView :header="'Preview'" :data="dataBox.afterData" /></div>
       
       <div id="validation-result" :class="{ok: (transformValue.trim() === '' || !validationResult || validationResult.ok), unknown: (!validationResult || validationResult.unknownCommand)}">
-          {{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}
-      </div>
-      <div style="display: none" id="command-help">
-        <table>
+        <p>{{(!validationResult || validationResult.ok) ? 'Ok' : validationResult.text }}</p>
+        <table id="command-help">
           <tr>
             <th>Command</th>
             <th>Arguments</th>
@@ -134,5 +132,11 @@ export default {
     border: 1px solid #08F;
     border-top: 0px solid #FFF;
     background: rgba(0, 64, 128, 0.25);
+}
+#command-help {
+    overflow-y: scroll;
+    max-height: 400px;
+    display: block;
+    font-size: 12px;
 }
 </style>
