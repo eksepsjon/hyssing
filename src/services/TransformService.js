@@ -9,6 +9,7 @@ import JoinRow from './transforms/JoinRow';
 import Substring from './transforms/Substring';
 import Copy from './transforms/Copy';
 import Insert from './transforms/Insert';
+import Base64 from './transforms/Base64';
 
 export default class TransformService {
     get transforms() {
@@ -22,7 +23,8 @@ export default class TransformService {
             new SplitColumn(),
             new JoinColumn(),
             new JoinRow(),
-            new Insert()
+            new Insert(),
+            new Base64(),
         ];
     }
 
