@@ -1,40 +1,32 @@
 <template>
-  <div class="flex flex-col bg-gray-800">
-    <h1 class="text-4xl m-8 mb-0 text-white text-center">hyssing</h1>
-    <textarea
-      v-model="initial"
-      class="
-        flex-grow
-        m-8
-        p-4
-        rounded-lg
-        text-lg
-        bg-gray-900
-        text-white
-        border-2 border-indigo-700
-        focus:outline-none
-        focus:ring-2 focus:ring-indigo-300
-      "
-    ></textarea>
-    <button
-      @click="init(initial)"
-      class="
-        flex-none
-        m-8
-        mt-0
-        p-4
-        rounded-lg
-        bg-indigo-700
-        hover:bg-indigo-600
-        hover:border-indigo-300
-        text-white
-        border-2 border-indigo-700
-        focus:outline-none
-        focus:ring-2 focus:ring-indigo-300
-      "
-    >
-      Go!
-    </button>
+  <div class="bg-gray-800 p-4 rounded-2xl border-2 border-green-300">
+    <label>
+      <h3
+        class="text-white text-2xl border-b-2 text-center border-green-700 pb-3"
+      >
+        {{ title }}
+      </h3>
+      <!--
+      <svg style="width: 24px; height: 24px" viewBox="0 0 24 24">
+        <path
+          fill="currentColor"
+          d="M19,20H5V4H7V7H17V4H19M12,2A1,1 0 0,1 13,3A1,1 0 0,1 12,4A1,1 0 0,1 11,3A1,1 0 0,1 12,2M19,2H14.82C14.4,0.84 13.3,0 12,0C10.7,0 9.6,0.84 9.18,2H5A2,2 0 0,0 3,4V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V4A2,2 0 0,0 19,2Z"
+        />
+      </svg>-->
+      <textarea
+        v-model="initial"
+        :placeholder="commands.join('\n')"
+        class="
+          font-mono
+          bg-transparent
+          w-full
+          mt-3
+          h-20
+          text-white
+          focus:outline-none
+        "
+      ></textarea>
+    </label>
   </div>
 </template>
 
@@ -42,17 +34,18 @@
 export default {
   name: "nextinput",
   components: {},
+  props: ["title", "commands"],
   data: function () {
     return {
       initial: "",
     };
   },
-  computed: {},
-  methods: {
-    init(text) {
-      this.$emit("text-ready", text);
+  watch: {
+    initial(text) {
+      this.$emit("text-ready", { text, commands: this.commands });
     },
   },
+  computed: {},
 };
 </script>
 

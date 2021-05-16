@@ -1,13 +1,13 @@
 <template>
   <div>
     <template v-if="!current">
-      <next-input class="h-screen" @text-ready="init($event)" />
+      <next-input-area class="h-screen" @text-ready="init($event)" />
     </template>
     <template v-else>
-      <div class="h-screen bg-gray-800 flex flex-col justify-items-stretch">
+      <div class="h-screen bg-gray-900 flex flex-col justify-items-stretch">
         <next-data-view v-if="next" class="text-white flex-grow" :data="next" />
         <next-data-view v-else class="text-white flex-grow" :data="current" />
-        <div class="flex-none p-2">
+        <div class="flex-none">
           <div
             class="
               absolute
@@ -15,31 +15,34 @@
               bottom-2
               z-20
               bg-red-800
-              text-white
-              p-2
-              text-xl
+              text-white text-xl
+              rounded-full
+              pl-8
+              pr-8
               border-2 border-red-500
             "
-            v-if="cmd && cmd.length && !validationResult.ok"
+            v-if="
+              command !== 'help' && cmd && cmd.length && !validationResult.ok
+            "
           >
             {{ validationResult.text }}
           </div>
           <table
-            v-if="validationResult.unknownCommand"
+            v-if="command === 'help'"
             class="
               text-gray-400
-              border-2 border-indigo-700
+              border-t-4 border-indigo-700
               w-full
               rounded-lg
-              text-xs
+              text
             "
           >
             <tr
               v-for="help in commands"
               :key="help.command.prefix"
-              class="even:bg-gray-900"
+              class="even:bg-indigo-900 odd:bg-indigo-800"
             >
-              <td>
+              <td class="p-2">
                 <span
                   class="
                     text-white
@@ -60,20 +63,22 @@
             </tr>
           </table>
           <input
+            placeholder=" > Type help to list of commands..."
             spellcheck="false"
             class="
               w-full
               bg-gray-900
               focus:bg-black
               text-white
-              border-2 border-indigo-700
+              border-t-2 border-green-700
               focus:outline-none
+              font-mono
               p-2
               text-lg
             "
             :class="
               validationResult.ok || (cmd && cmd.length === 0)
-                ? 'border-indigo-700'
+                ? 'border-green-700'
                 : 'border-red-500'
             "
             v-model="command"
@@ -86,14 +91,14 @@
 </template>
 
 <script>
-import NextInput from "./NextInput.vue";
+import NextInputArea from "./NextInputArea.vue";
 import NextDataView from "./NextDataView.vue";
 import TransformService from "./../services/TransformService";
 const transformService = new TransformService();
 
 export default {
   name: "nextapp",
-  components: { NextInput, NextDataView },
+  components: { NextInputArea, NextDataView },
   data: function () {
     return {
       initial: "",
@@ -115,8 +120,24 @@ export default {
     },
   },
   methods: {
-    init(text) {
-      this.current = { rows: 1, cols: 1, type: "text", data: [[text]] };
+    init({ text, commands }) {
+      let current = { rows: 1, cols: 1, type: "text", data: [[text]] };
+
+      for (let n = 0; n < commands.length; n++) {
+        const next = transformService.transform(
+          current,
+          transformService.arrify(commands[n])
+        );
+        console.log("Apply command", commands[n], current, next);
+        if (next) {
+          current = next;
+        } else {
+          this.command = commands[n];
+        }
+      }
+
+      this.current = current;
+      this.next = null;
       this.command = "";
     },
     preview() {

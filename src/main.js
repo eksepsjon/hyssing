@@ -1,9 +1,10 @@
 import { createApp, h } from 'vue'
 import { createWebHashHistory, createRouter } from "vue-router";
 import App from './App.vue'
-import ProcessData from './components/ProcessData.vue'
 import NextApp from './components/NextApp.vue'
 
+import "@fontsource/koho"
+import "@fontsource/fira-mono"
 import './index.css'
 
 const routes = [
