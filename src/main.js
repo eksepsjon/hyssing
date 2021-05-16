@@ -7,8 +7,7 @@ import NextApp from './components/NextApp.vue'
 import './index.css'
 
 const routes = [
-    { path: '/', component: ProcessData },
-    { path: '/next', component: NextApp },
+    { path: '/', component: NextApp },
 ]
 
 const router = createRouter({
