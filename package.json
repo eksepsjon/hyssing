@@ -15,6 +15,7 @@
         "@vitejs/plugin-vue": "^1.2.2",
         "@vue/compiler-sfc": "^3.0.5",
         "autoprefixer": "^10.2.5",
+        "execa": "^5.0.0",
         "postcss": "^8.2.15",
         "tailwindcss": "^2.1.2",
         "vite": "^2.3.0"
