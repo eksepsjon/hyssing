@@ -5,6 +5,7 @@ import TextToJson from './transforms/TextToJson'
 import SplitColumn from './transforms/SplitColumn';
 import SplitRow from './transforms/SplitRow';
 import JoinColumn from './transforms/JoinColumn';
+import JoinRow from './transforms/JoinRow';
 import Substring from './transforms/Substring';
 import Copy from './transforms/Copy';
 import Insert from './transforms/Insert';
@@ -20,6 +21,7 @@ export default class TransformService {
             new SplitRow(),
             new SplitColumn(),
             new JoinColumn(),
+            new JoinRow(),
             new Insert()
         ];
     }
