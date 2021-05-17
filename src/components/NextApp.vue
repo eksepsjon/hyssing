@@ -102,7 +102,7 @@ export default {
   data: function () {
     return {
       initial: "",
-      current: null,
+      current: window.currentData ? window.currentData : null,
       next: null,
       command: "",
       validationResult: { ok: false, unknownCommand: true, text: "" },

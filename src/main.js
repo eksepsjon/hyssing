@@ -2,13 +2,15 @@ import { createApp, h } from 'vue'
 import { createWebHashHistory, createRouter } from "vue-router";
 import App from './App.vue'
 import NextApp from './components/NextApp.vue'
+import Home from './components/Home.vue'
 
 import "@fontsource/koho"
 import "@fontsource/fira-mono"
 import './index.css'
 
 const routes = [
-    { path: '/', component: NextApp },
+    { path: '/', component: Home },
+    { path: '/process', name: "process", component: NextApp },
 ]
 
 const router = createRouter({
