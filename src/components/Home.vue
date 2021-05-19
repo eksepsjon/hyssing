@@ -1,17 +1,35 @@
 <template>
   <div class="flex flex-col items-center justify-between min-h-screen">
-    <div class="flex flex-col items-center w-full max-w-4xl">
-      <div class="w-full flex flex-row bg-gray-700 rounded-xl mt-8">
-        <h1 class="text-4xl m-16 text-center w-1/2">hyssing</h1>
+    <div class="flex flex-col items-center w-full">
+      <div
+        class="
+          w-full
+          max-w-4xl
+          flex flex-col
+          md:flex-row
+          rounded-xl
+          mt-16
+          mb-16
+          p-8
+          sm:p-0
+        "
+      >
+        <div
+          class="text-center md:w-1/2 flex flex-col items-start justify-center"
+        >
+          <h1 class="text-7xl">hyssing</h1>
+          <p class="text-xl text-gray-300 m-3 pb-8 sm:pb-0">
+            A tool to transform text.
+          </p>
+        </div>
         <div
           class="
-            bg-gray-800
+            bg-gray-900
             flex flex-col
             items-stretch
             rounded-xl
             justify-between
-            w-1/2
-            m-8
+            md:w-1/2
           "
         >
           <step>
@@ -68,15 +86,19 @@
           </step>
         </div>
       </div>
-      <h2 class="text-2xl m-8">"Paste &amp; Go" Recipes</h2>
-      <div class="bg-green-900 p-4 rounded-xl w-full">
-        <next-input-area @text-ready="init($event)" />
+      <div class="w-full bg-black flex flex-col items-center p-8 sm:p-0">
+        <div class="w-full max-w-4xl">
+          <h2 class="text-2xl mt-12 mb-6">"Paste &amp; Go" Recipes</h2>
+        </div>
+        <div class="rounded-xl mb-16 w-full max-w-4xl">
+          <next-input-area @text-ready="init($event)" />
+        </div>
       </div>
     </div>
     <div
-      class="p-8 w-full bg-black text-gray-400 mt-16 flex flex-col items-center"
+      class="p-8 w-full bg-gray-900 text-gray-400 flex flex-col items-center"
     >
-      <div class="w-full max-w-3xl">
+      <div class="w-full max-w-4xl">
         <a
           href="https://github.com/eksepsjon/hyssing"
           class="flex flex-row hover:underline items-center"
