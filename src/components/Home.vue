@@ -17,8 +17,8 @@
         <div
           class="text-center md:w-1/2 flex flex-col items-start justify-center"
         >
-          <h1 class="text-7xl">hyssing</h1>
-          <p class="text-xl text-gray-300 m-3 pb-8 sm:pb-0">
+          <h1 class="text-7xl p-4">hyssing</h1>
+          <p class="text-xl text-gray-300 m-3 p-4 pb-8 sm:pb-0">
             A tool to transform text.
           </p>
         </div>
@@ -86,7 +86,7 @@
           </step>
         </div>
       </div>
-      <div class="w-full bg-black flex flex-col items-center p-8 sm:p-0">
+      <div class="w-full bg-black flex flex-col items-center p-8">
         <div class="w-full max-w-4xl">
           <h2 class="text-2xl mt-12 mb-6">"Paste &amp; Go" Recipes</h2>
         </div>

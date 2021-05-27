@@ -15,7 +15,7 @@
       </svg>-->
       <textarea
         v-model="initial"
-        :placeholder="commands.join('\n')"
+        :placeholder="description"
         class="
           font-mono
           bg-transparent
@@ -34,7 +34,7 @@
 export default {
   name: "nextinput",
   components: {},
-  props: ["title", "commands"],
+  props: ["title", "commands", "description"],
   data: function () {
     return {
       initial: "",

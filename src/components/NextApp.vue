@@ -70,7 +70,7 @@
               bg-gray-900
               focus:bg-black
               text-white
-              border-t-2 border-green-700
+              border-t-2 border-gray-700
               focus:outline-none
               font-mono
               p-2

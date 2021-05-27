@@ -3,9 +3,10 @@
     <table class="w-full">
       <tr>
         <th
-          class="border-2 border-gray-800 p-2"
+          class="border-gray-800 p-2"
           v-for="n in 1 + data.cols"
           :key="n"
+          :class="n > 1 ? 'border-l-2' : 'border-b-2'"
         >
           <span
             v-if="n > 1"
@@ -24,7 +25,7 @@
         </th>
       </tr>
       <tr v-for="row in data.rows" :key="'r' + row">
-        <th class="p-2 w-7 border-2 border-gray-800 text-right">
+        <th class="p-2 w-7 border-t-2 border-gray-800 text-right">
           <span
             class="
               bg-green-700
