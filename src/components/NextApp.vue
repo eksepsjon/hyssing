@@ -62,28 +62,50 @@
               <td>{{ help.command.applicable }}</td>
             </tr>
           </table>
-          <input
-            placeholder=" > Type help to list of commands..."
-            spellcheck="false"
-            class="
-              w-full
-              bg-gray-900
-              focus:bg-black
-              text-white
-              border-t-2 border-gray-700
-              focus:outline-none
-              font-mono
-              p-2
-              text-lg
-            "
-            :class="
-              validationResult.ok || (cmd && cmd.length === 0)
-                ? 'border-green-700'
-                : 'border-red-500'
-            "
-            v-model="command"
-            v-on:keyup.enter="process"
-          />
+          <div class="fixed bottom-0 left-0 w-full">
+            <template
+              v-for="(cmd, cmdIndex) in current.appliedCommands"
+              :key="cmdIndex"
+            >
+              <span
+                v-for="(step, stepIndex) in cmd"
+                :key="stepIndex + 's'"
+                class="
+                  inline-block
+                  bg-black
+                  rounded
+                  mr-2
+                  p-1
+                  pr-2
+                  pl-2
+                  font-mono
+                "
+                >{{ step }}</span
+              >
+            </template>
+            <input
+              placeholder=" > Type help to list of commands..."
+              spellcheck="false"
+              class="
+                w-full
+                bg-gray-900
+                focus:bg-black
+                text-white
+                border-t-2 border-gray-700
+                focus:outline-none
+                font-mono
+                p-2
+                text-lg
+              "
+              :class="
+                validationResult.ok || (cmd && cmd.length === 0)
+                  ? 'border-green-700'
+                  : 'border-red-500'
+              "
+              v-model="command"
+              v-on:keyup.enter="process"
+            />
+          </div>
         </div>
       </div>
     </template>

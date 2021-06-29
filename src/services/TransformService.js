@@ -103,7 +103,9 @@ export default class TransformService {
         const cmd = this.findCommand(inputArr);
 
         if (cmd && cmd.transform.validate(dataBox, inputArr).ok) {
-            return cmd.transform.transform(dataBox, inputArr);
+            const newDatabox = cmd.transform.transform(dataBox, inputArr);
+            newDatabox.appliedCommands = (dataBox.appliedCommands ? dataBox.appliedCommands : []).concat([inputArr]);
+            return newDatabox;
         }
 
         return null;
