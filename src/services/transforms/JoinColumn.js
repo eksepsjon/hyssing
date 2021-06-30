@@ -2,7 +2,7 @@ export default class JoinColumn {
 
     info() {
         return {
-            "prefix": "joincol",
+            "prefix": "join",
             "arguments": "<Join String> <optional Column #> .. <optional Column #>",
             "applicable": ["text"],
             "text": "Merge columns with <Join String>. Optionally select which columns to merge, otherwise all columns are merged."

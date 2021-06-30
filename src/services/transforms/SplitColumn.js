@@ -2,7 +2,7 @@ export default class SplitColumn {
 
     info() {
         return {
-            "prefix": "splitcol",
+            "prefix": "split",
             "arguments": "<Regex> <optional Column #>",
             "applicable": ["text"],
             "text": "Split each column into columns where the regex matches. If <Column #> is set only that column is split."

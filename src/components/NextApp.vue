@@ -30,6 +30,9 @@
           <table
             v-if="command === 'help'"
             class="
+              fixed
+              top-0
+              left-0
               text-gray-400
               border-t-4 border-indigo-700
               w-full

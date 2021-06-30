@@ -1,11 +1,11 @@
-export default class SplitRow {
+export default class Slice {
 
     info() {
         return {
-            "prefix": "splitrow",
+            "prefix": "slice",
             "arguments": "<Regex> <optional Column #>",
             "applicable": ["text"],
-            "text": "Split each row into new rows where the regex matches. If <Column #> is not set the first column is used to split the row."
+            "text": "Slice each row into new rows where the regex matches. If <Column #> is not set the first column is used to slice the row."
         }
     }
 

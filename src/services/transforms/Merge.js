@@ -1,11 +1,11 @@
-export default class JoinRow {
+export default class Merge {
 
     info() {
         return {
-            "prefix": "joinrow",
-            "arguments": "<Join String>",
+            "prefix": "merge",
+            "arguments": "<Merge String>",
             "applicable": ["text"],
-            "text": "Merge columns with <Join String>."
+            "text": "Merge rows with <Merge String>."
         }
     }
 
@@ -17,7 +17,7 @@ export default class JoinRow {
         var joinString = inputArr && inputArr.length > 1 ? inputArr[1] : "";
 
         if (joinString.length === 0) {
-            return { "text": "Join string is empty.", "ok": false };
+            return { "text": "Merge string is empty.", "ok": false };
         }
 
         return { "text": "", "ok": true };

@@ -29,12 +29,12 @@ export default {
         {
           title: "No Recipe",
           description: "No commands are applied.",
-          commands: ["splitrow \\\\n"],
+          commands: [],
         },
         {
           title: "Line-by-line",
           description: "Split text by line breaks.",
-          commands: ["splitrow \\\\n"],
+          commands: ["slice \\\\n"],
         },
         {
           title: "Encode to base64",
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     init(text) {
-      this.$emit("text-ready", { text, commands: ["splitrow \\\\n"] });
+      this.$emit("text-ready", { text, commands: ["slice \\\\n"] });
     },
   },
 };
