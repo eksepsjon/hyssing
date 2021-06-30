@@ -1,72 +1,44 @@
 <template>
   <div>
     <template v-if="!current">
-      <next-input-area class="h-screen" @text-ready="init($event)" />
+      <div class="h-screen w-screen flex items-center justify-center">
+        <next-input
+          v-if="routeCmds"
+          class="max-w-4xl flex-grow mr-4 mb-4"
+          title="URL Recipe"
+          description=""
+          :commands="routeCmds"
+          @text-ready="init($event)"
+        />
+      </div>
     </template>
     <template v-else>
-      <div class="h-screen bg-gray-900 flex flex-col justify-items-stretch">
-        <next-data-view v-if="next" class="text-white flex-grow" :data="next" />
-        <next-data-view v-else class="text-white flex-grow" :data="current" />
-        <div class="flex-none">
+      <div class="h-screen bg-gray-900 flex flex-row justify-items-stretch">
+        <div
+          class="
+            flex-grow flex-shrink-0
+            w-1/3
+            max-w-sm
+            flex flex-col
+            items-stretch
+            justify-self-stretch
+          "
+        >
           <div
             class="
-              absolute
-              right-2
-              bottom-2
-              z-20
-              bg-red-800
-              text-white text-xl
-              rounded-full
-              pl-8
-              pr-8
-              border-2 border-red-500
-            "
-            v-if="
-              command !== 'help' && cmd && cmd.length && !validationResult.ok
+              flex-grow-0 flex-shrink-0
+              bg-indigo-800
+              text-center text-xl
+              p-4
             "
           >
-            {{ validationResult.text }}
+            Hyssing
           </div>
-          <table
-            v-if="command === 'help'"
-            class="
-              fixed
-              top-0
-              left-0
-              text-gray-400
-              border-t-4 border-indigo-700
-              w-full
-              rounded-lg
-              text
-            "
-          >
-            <tr
-              v-for="help in commands"
-              :key="help.command.prefix"
-              class="even:bg-indigo-900 odd:bg-indigo-800"
-            >
-              <td class="p-2">
-                <span
-                  class="
-                    text-white
-                    inline-block
-                    bg-black
-                    rounded
-                    p-1
-                    pr-2
-                    pl-2
-                    font-mono
-                  "
-                  >{{ help.command.prefix }}</span
-                >
-              </td>
-              <td>{{ help.command.arguments }}</td>
-              <td>{{ help.command.text }}</td>
-              <td>{{ help.command.applicable }}</td>
-            </tr>
-          </table>
-          <div class="fixed bottom-0 left-0 w-full">
-            <template
+          <div class="flex-grow bg-gray-900 flex flex-col overflow-auto">
+            <div class="text-gray-500 p-4">Applied commands</div>
+
+            <div
+              class="bg-indigo-900 p-4 m-2 rounded-2xl rounded-bl-none"
               v-for="(cmd, cmdIndex) in current.appliedCommands"
               :key="cmdIndex"
             >
@@ -85,24 +57,45 @@
                 "
                 >{{ step }}</span
               >
-            </template>
+            </div>
+          </div>
+          <div class="flex-grow-0 flex-shrink-0 flex items-stretch">
+            <div
+              class="
+                absolute
+                left-2
+                bottom-16
+                z-20
+                bg-red-800
+                text-white text-xl
+                rounded-full
+                pl-8
+                pr-8
+                border-2 border-red-500
+              "
+              v-if="cmd && cmd.length && !validationResult.ok"
+            >
+              {{ validationResult.text }}
+            </div>
             <input
-              placeholder=" > Type help to list of commands..."
+              placeholder="Enter transform command here..."
               spellcheck="false"
               class="
-                w-full
                 bg-gray-900
-                focus:bg-black
                 text-white
-                border-t-2 border-gray-700
+                border-b-2 border-gray-700
                 focus:outline-none
                 font-mono
                 p-2
-                text-lg
+                pl-4
+                pr-4
+                m-2
+                flex-grow
+                focus:bg-black
               "
               :class="
                 validationResult.ok || (cmd && cmd.length === 0)
-                  ? 'border-green-700'
+                  ? ''
                   : 'border-red-500'
               "
               v-model="command"
@@ -110,20 +103,24 @@
             />
           </div>
         </div>
+        <div class="max-h-screen overflow-auto bg-black w-full p-2">
+          <next-data-view v-if="next" :data="next" />
+          <next-data-view v-else :data="current" />
+        </div>
       </div>
     </template>
   </div>
 </template>
 
 <script>
-import NextInputArea from "./NextInputArea.vue";
+import NextInput from "./NextInput.vue";
 import NextDataView from "./NextDataView.vue";
 import TransformService from "./../services/TransformService";
 const transformService = new TransformService();
 
 export default {
   name: "nextapp",
-  components: { NextInputArea, NextDataView },
+  components: { NextInput, NextDataView },
   data: function () {
     return {
       initial: "",
@@ -135,6 +132,13 @@ export default {
     };
   },
   computed: {
+    routeCmds() {
+      if (this.$route.params.cmd) {
+        return JSON.parse(atob(this.$route.params.cmd));
+      }
+
+      return null;
+    },
     cmd() {
       return transformService.arrify(this.command);
     },
@@ -145,6 +149,25 @@ export default {
     },
   },
   methods: {
+    storeCommandsInParams() {
+      const cmdToStore = [];
+      for (let n = 0; n < this.current.appliedCommands.length; n++) {
+        cmdToStore.push(this.current.appliedCommands[n].join(" "));
+      }
+      this.$router.replace({
+        name: "processb64",
+        params: { cmd: btoa(JSON.stringify(cmdToStore)) },
+      });
+      return;
+      window.history.replaceState(
+        {},
+        null,
+        "#" +
+          this.$route.path +
+          "/" +
+          encodeURIComponent(btoa(JSON.stringify(cmdToStore)))
+      );
+    },
     init({ text, commands }) {
       let current = { rows: 1, cols: 1, type: "text", data: [[text]] };
 
@@ -164,6 +187,8 @@ export default {
       this.current = current;
       this.next = null;
       this.command = "";
+
+      this.storeCommandsInParams();
     },
     preview() {
       this.validationResult = transformService.validateTransformOp(
@@ -178,6 +203,8 @@ export default {
         this.current = next;
         this.next = null;
         this.command = "";
+
+        this.storeCommandsInParams();
       }
     },
   },

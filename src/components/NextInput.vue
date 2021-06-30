@@ -15,7 +15,7 @@
       </svg>-->
       <textarea
         v-model="initial"
-        :placeholder="description"
+        :placeholder="description + '\n' + commands"
         class="
           font-mono
           bg-transparent

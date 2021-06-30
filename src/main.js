@@ -11,6 +11,7 @@ import './index.css'
 const routes = [
     { path: '/', component: Home },
     { path: '/process', name: "process", component: NextApp },
+    { path: '/process/:cmd', name: "processb64", component: NextApp },
 ]
 
 const router = createRouter({
