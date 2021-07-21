@@ -10,6 +10,7 @@ import Substring from './transforms/Substring';
 import Copy from './transforms/Copy';
 import Insert from './transforms/Insert';
 import Base64 from './transforms/Base64';
+import Transpose from './transforms/Transpose';
 
 export default class TransformService {
     get transforms() {
@@ -25,6 +26,7 @@ export default class TransformService {
             new Merge(),
             new Insert(),
             new Base64(),
+            new Transpose(),
         ];
     }
 
