@@ -497,3 +497,30 @@ label.file:hover .button,
 label.file:focus-within .button {
   border-color: var(--accent);
 }
+
+/* Lines tool */
+.operations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.op-row {
+  flex-wrap: wrap;
+}
+
+.op-row input[type='text'] {
+  flex: 1 1 200px;
+  width: auto;
+  min-width: 0;
+  padding: 6px 10px;
+}
+
+.op-label {
+  width: 4.5em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
