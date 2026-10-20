@@ -8,10 +8,23 @@ import {
   reverseLines,
   shuffleLines,
   sortLines,
+  sortLocales,
   splitLines,
   uniqueLines,
 } from '../tools/lines'
 import CopyButton from './CopyButton'
+
+const localeKey = 'hyssing.sortLocale'
+
+function initialLocale(): string {
+  try {
+    const saved = localStorage.getItem(localeKey)
+    if (saved && sortLocales.some((l) => l.value === saved)) return saved
+  } catch {
+    // Storage can be unavailable (private mode, blocked site data); fall back to the default.
+  }
+  return 'nb'
+}
 
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`
 
@@ -21,6 +34,7 @@ export default function LinesTool() {
   const [error, setError] = useState('')
   const [ignoreCase, setIgnoreCase] = useState(false)
   const [natural, setNatural] = useState(true)
+  const [locale, setLocale] = useState(initialLocale)
   const [filter, setFilter] = useState('')
   const [find, setFind] = useState('')
   const [replacement, setReplacement] = useState('')
@@ -36,6 +50,15 @@ export default function LinesTool() {
     }
   }
 
+  function changeLocale(value: string) {
+    setLocale(value)
+    try {
+      localStorage.setItem(localeKey, value)
+    } catch {
+      // Not remembering the choice is fine.
+    }
+  }
+
   function useOutputAsInput() {
     setInput(output)
     setOutput('')
@@ -48,8 +71,8 @@ export default function LinesTool() {
     <>
       <div className="operations">
         <div className="toolbar">
-          <button onClick={() => apply((lines) => sortLines(lines, { ignoreCase, natural }))}>Sort A→Z</button>
-          <button onClick={() => apply((lines) => sortLines(lines, { ignoreCase, natural, descending: true }))}>Sort Z→A</button>
+          <button onClick={() => apply((lines) => sortLines(lines, { ignoreCase, natural, locale }))}>Sort A→Z</button>
+          <button onClick={() => apply((lines) => sortLines(lines, { ignoreCase, natural, locale, descending: true }))}>Sort Z→A</button>
           <button onClick={() => apply((lines) => uniqueLines(lines, { ignoreCase }))}>Remove duplicates</button>
           <button onClick={() => apply(shuffleLines)}>Shuffle</button>
           <button onClick={() => apply(reverseLines)}>Reverse</button>
@@ -63,6 +86,16 @@ export default function LinesTool() {
           <label title="Sort numbers by value, so item2 comes before item10">
             <input type="checkbox" checked={natural} onChange={(e) => setNatural(e.target.checked)} />
             Natural number order
+          </label>
+          <label>
+            Alphabet
+            <select value={locale} onChange={(e) => changeLocale(e.target.value)}>
+              {sortLocales.map((l) => (
+                <option key={l.value} value={l.value}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
         <div className="toolbar op-row">

@@ -1,8 +1,12 @@
 import { Suspense, useEffect, useState } from 'react'
 import { tools } from './registry'
 
+// Old tab ids that still open the tool they were renamed to.
+const renamed: Record<string, string> = { lines: 'text' }
+
 function toolFromHash(): string {
-  const id = window.location.hash.slice(1)
+  const hash = window.location.hash.slice(1)
+  const id = renamed[hash] ?? hash
   return tools.some((tool) => tool.id === id) ? id : tools[0].id
 }
 

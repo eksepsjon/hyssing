@@ -16,8 +16,8 @@ export interface Tool {
 export const tools: Tool[] = [
   ...textTools.map((tool) => ({ ...tool, render: () => <TextTool tool={tool} /> })),
   {
-    id: 'lines',
-    name: 'Lines',
+    id: 'text',
+    name: 'Text',
     description: 'Sort, deduplicate, shuffle, filter and find-and-replace line by line. Chain steps with "Use as input".',
     render: () => <LinesTool />,
   },
