@@ -579,6 +579,22 @@ label.file:focus-within .button {
   font-size: 0.85rem;
 }
 
+.share input[type='text'] {
+  flex: 1 1 100%;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+.share > p {
+  width: 100%;
+}
+
+.share .error {
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+}
+
 .palette-actions {
   margin-top: auto;
 }
