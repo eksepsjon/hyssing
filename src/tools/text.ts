@@ -13,7 +13,7 @@ export interface Action {
   run: (input: string, options: ToolOptions) => string | Promise<string>
 }
 
-export interface Tool {
+export interface TextToolDefinition {
   id: string
   name: string
   description: string
@@ -22,7 +22,7 @@ export interface Tool {
   actions: Action[]
 }
 
-export const tools: Tool[] = [
+export const textTools: TextToolDefinition[] = [
   {
     id: 'base64',
     name: 'Base64',
