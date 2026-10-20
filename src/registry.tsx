@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import JwtTool from './components/JwtTool'
 import MapTool from './components/LazyMapTool'
+import LinesTool from './components/LinesTool'
 import TextTool from './components/TextTool'
 import TimeTool from './components/TimeTool'
 import { textTools } from './tools/text'
@@ -14,6 +15,12 @@ export interface Tool {
 
 export const tools: Tool[] = [
   ...textTools.map((tool) => ({ ...tool, render: () => <TextTool tool={tool} /> })),
+  {
+    id: 'lines',
+    name: 'Lines',
+    description: 'Sort, deduplicate, shuffle, filter and find-and-replace line by line. Chain steps with "Use as input".',
+    render: () => <LinesTool />,
+  },
   {
     id: 'jwt',
     name: 'JWT',
