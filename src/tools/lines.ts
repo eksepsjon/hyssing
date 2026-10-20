@@ -23,8 +23,21 @@ export interface CompareOptions {
   ignoreCase?: boolean
 }
 
-export function sortLines(lines: string[], options: CompareOptions & { descending?: boolean; natural?: boolean } = {}): string[] {
-  const collator = new Intl.Collator(undefined, {
+/** Alphabets offered for sorting. Letters like å, ä and ø sort differently per language. */
+export const sortLocales = [
+  { value: 'nb', label: 'Norwegian (æ ø å after z)' },
+  { value: 'da', label: 'Danish (æ ø å after z)' },
+  { value: 'sv', label: 'Swedish (å ä ö after z)' },
+  { value: 'fi', label: 'Finnish (å ä ö after z)' },
+  { value: 'de', label: 'German (ä ö ü with a o u)' },
+  { value: 'en', label: 'English (å with a)' },
+]
+
+export function sortLines(
+  lines: string[],
+  options: CompareOptions & { descending?: boolean; natural?: boolean; locale?: string } = {},
+): string[] {
+  const collator = new Intl.Collator(options.locale, {
     numeric: options.natural,
     sensitivity: options.ignoreCase ? 'accent' : 'variant',
   })

@@ -27,6 +27,12 @@ describe('lines', () => {
     expect(sortLines(['item10', 'item2'])).toEqual(['item10', 'item2'])
   })
 
+  it('sorts by the chosen alphabet', () => {
+    const words = ['ål', 'zebra', 'øl', 'and', 'ærlig']
+    expect(sortLines(words, { locale: 'nb' })).toEqual(['and', 'zebra', 'ærlig', 'øl', 'ål'])
+    expect(sortLines(words, { locale: 'en' })).toEqual(['ærlig', 'ål', 'and', 'øl', 'zebra'])
+  })
+
   it('removes duplicates keeping the first occurrence', () => {
     expect(uniqueLines(['a', 'b', 'a', 'A'])).toEqual(['a', 'b', 'A'])
     expect(uniqueLines(['a', 'b', 'a', 'A'], { ignoreCase: true })).toEqual(['a', 'b'])
