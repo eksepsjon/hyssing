@@ -61,6 +61,10 @@ body {
   gap: 16px;
 }
 
+.layout.wide {
+  max-width: none;
+}
+
 header h1 {
   margin: 0;
   font-size: 1.6rem;
@@ -523,4 +527,198 @@ label.file:focus-within .button {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
+}
+
+/* Pipeline tool */
+.pipeline {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 340px;
+  gap: 12px;
+  height: max(520px, calc(100vh - 210px));
+}
+
+@media (max-width: 1000px) {
+  .pipeline {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 65vh 320px;
+    height: auto;
+  }
+}
+
+.palette {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.palette p {
+  margin: 0;
+}
+
+.palette h3 {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.palette > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.palette > div > h3 {
+  width: 100%;
+}
+
+.palette > div > button {
+  padding: 3px 9px;
+  font-size: 0.85rem;
+}
+
+.palette-actions {
+  margin-top: auto;
+}
+
+.canvas {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.canvas .react-flow {
+  --xy-background-color: var(--bg);
+  --xy-background-pattern-color: var(--border);
+  --xy-edge-stroke: var(--muted);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-connectionline-stroke: var(--accent);
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--bg);
+  --xy-controls-button-color: var(--text);
+  --xy-controls-button-border-color: var(--border);
+}
+
+.viewer {
+  min-height: 0;
+}
+
+.error.waiting {
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.pipeline-node {
+  width: 240px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  font-size: 0.8rem;
+}
+
+.pipeline-node.selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.pipeline-node.error {
+  border-left-color: var(--error-text);
+}
+
+.pipeline-node.waiting {
+  border-left-color: var(--border);
+}
+
+.pipeline-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 6px 10px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.pipeline-node-header button {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.pipeline-node-params {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  cursor: default;
+}
+
+.pipeline-node-params label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.pipeline-node-params label.check {
+  justify-content: flex-start;
+}
+
+.pipeline-node-params select,
+.pipeline-node-params input[type='text'] {
+  width: 130px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+
+.pipeline-node-params textarea {
+  flex: none;
+  padding: 6px;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+.pipeline-node-preview {
+  margin: 0;
+  padding: 8px 10px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text);
+}
+
+.pipeline-node.error .pipeline-node-preview {
+  color: var(--error-text);
+}
+
+.pipeline-node.waiting .pipeline-node-preview {
+  color: var(--muted);
+}
+
+.pipeline-node .react-flow__handle {
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+}
+
+.port-label {
+  position: absolute;
+  left: 14px;
+  top: -6px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  pointer-events: none;
 }

@@ -4,6 +4,7 @@ import {
   filterLines,
   joinLines,
   removeEmptyLines,
+  seededRandom,
   replaceInLines,
   shuffleLines,
   sortLines,
@@ -42,6 +43,8 @@ describe('lines', () => {
     const lines = ['1', '2', '3', '4', '5']
     expect(shuffleLines(lines, () => 0)).toEqual(['2', '3', '4', '5', '1'])
     expect(shuffleLines(lines).sort()).toEqual(lines)
+    expect(shuffleLines(lines, seededRandom('x'))).toEqual(shuffleLines(lines, seededRandom('x')))
+    expect(shuffleLines(lines, seededRandom('x'))).not.toEqual(shuffleLines(lines, seededRandom('y')))
   })
 
   it('removes empty lines', () => {
