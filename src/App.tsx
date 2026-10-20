@@ -21,7 +21,7 @@ export default function App() {
   }, [])
 
   return (
-    <div className="layout">
+    <div className={tool.wide ? 'layout wide' : 'layout'}>
       <header>
         <h1>Hyssing</h1>
         <p className="tagline">Everything runs in your browser. Nothing leaves this page.</p>
