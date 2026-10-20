@@ -5,7 +5,8 @@ import { tools } from './registry'
 const renamed: Record<string, string> = { lines: 'text' }
 
 function toolFromHash(): string {
-  const hash = window.location.hash.slice(1)
+  // A hash can carry data after the tool id, e.g. #pipeline=<shared pipeline>.
+  const hash = window.location.hash.slice(1).split('=')[0]
   const id = renamed[hash] ?? hash
   return tools.some((tool) => tool.id === id) ? id : tools[0].id
 }

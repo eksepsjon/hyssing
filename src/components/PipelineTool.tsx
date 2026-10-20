@@ -18,6 +18,7 @@ import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { evaluateGraph, wouldCreateCycle, type GraphEdge, type NodeResult } from '../pipeline/evaluate'
 import { defaultParams, nodeTypeMap, nodeTypes, type ParamValue } from '../pipeline/nodeTypes'
+import { decodePipeline, encodePipeline, type SharedPipeline } from '../pipeline/share'
 import CopyButton from './CopyButton'
 import { PipelineContext, type PipelineFlowNode } from '../pipeline/context'
 import PipelineNode from './PipelineNode'
@@ -49,7 +50,29 @@ function exampleGraph(): { nodes: PipelineFlowNode[]; edges: Edge[] } {
   }
 }
 
+function fromShared({ nodes, edges }: SharedPipeline): { nodes: PipelineFlowNode[]; edges: Edge[] } {
+  return {
+    nodes: nodes.map((node) => makeNode(node.id, node.type, node.position, node.params)),
+    edges: edges.map((edge) => makeEdge(edge.source, edge.target, edge.targetPort)),
+  }
+}
+
+/** A pipeline shared through the link (#pipeline=…), if the page was opened with one. */
+function sharedFromHash(): { nodes: PipelineFlowNode[]; edges: Edge[] } | undefined {
+  if (!window.location.hash.startsWith('#pipeline=')) return undefined
+  try {
+    return fromShared(decodePipeline(window.location.hash))
+  } catch {
+    return undefined
+  } finally {
+    // Drop the data from the address bar; from here on the pipeline is saved like any other edit.
+    history.replaceState(null, '', '#pipeline')
+  }
+}
+
 function loadGraph(): { nodes: PipelineFlowNode[]; edges: Edge[] } {
+  const shared = sharedFromHash()
+  if (shared) return shared
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) ?? 'null')
     if (Array.isArray(saved?.nodes) && Array.isArray(saved?.edges)) {
@@ -76,6 +99,11 @@ function toGraphEdges(edges: Edge[]): GraphEdge[] {
   return edges.map((edge) => ({ source: edge.source, target: edge.target, targetPort: portOf(edge.targetHandle) }))
 }
 
+/** Node ids are n1, n2, …; continue after the highest so imported graphs with gaps don't collide. */
+function firstFreeId(nodes: PipelineFlowNode[]): number {
+  return Math.max(0, ...nodes.map((node) => Number(node.id.slice(1)) || 0)) + 1
+}
+
 const categories = [...new Set(nodeTypes.map((def) => def.category))]
 
 function Editor() {
@@ -84,7 +112,7 @@ function Editor() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initial.edges)
   const [results, setResults] = useState<Map<string, NodeResult>>(new Map())
   const [viewedId, setViewedId] = useState<string | undefined>(initial.nodes.at(-1)?.id)
-  const nextId = useRef(Math.max(0, ...initial.nodes.map((node) => Number(node.id.slice(1)) || 0)) + 1)
+  const nextId = useRef(firstFreeId(initial.nodes))
   const canvas = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition, setViewport } = useReactFlow()
   const nodesInitialized = useNodesInitialized()
@@ -187,9 +215,37 @@ function Editor() {
     setNodes(graph.nodes)
     setEdges(graph.edges)
     setViewedId(graph.nodes.at(-1)?.id)
-    nextId.current = graph.nodes.length + 1
+    nextId.current = firstFreeId(graph.nodes)
     needsFraming.current = true
   }
+
+  const [importText, setImportText] = useState('')
+  const [importError, setImportError] = useState('')
+  const shareCode = encodePipeline({
+    nodes: nodes.map((node) => ({ id: node.id, type: node.data.type, params: node.data.params, position: node.position })),
+    edges: toGraphEdges(edges),
+  })
+  const shareLink = `${window.location.origin}${window.location.pathname}#pipeline=${shareCode}`
+
+  function importPipeline() {
+    try {
+      reset(fromShared(decodePipeline(importText)))
+      setImportText('')
+      setImportError('')
+    } catch (e) {
+      setImportError((e as Error).message)
+    }
+  }
+
+  // Opening a shared link while already on this tab only changes the hash, so load it here.
+  useEffect(() => {
+    const onHashChange = () => {
+      const shared = sharedFromHash()
+      if (shared) reset(shared)
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  })
 
   const viewed = nodes.find((node) => node.id === viewedId)
   const viewedResult = viewed && results.get(viewed.id)
@@ -211,6 +267,29 @@ function Editor() {
                 ))}
             </div>
           ))}
+          <div className="share">
+            <h3>Share</h3>
+            <p className="muted small">The whole pipeline, including input text, as Base64.</p>
+            <CopyButton text={shareLink} label="Copy link" />
+            <CopyButton text={shareCode} label="Copy Base64" />
+            <input
+              type="text"
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && importText && importPipeline()}
+              placeholder="Paste link or Base64"
+              spellCheck={false}
+              aria-label="Shared pipeline to import"
+            />
+            <button onClick={importPipeline} disabled={!importText}>
+              Import
+            </button>
+            {importError && (
+              <p className="error compact" role="alert">
+                {importError}
+              </p>
+            )}
+          </div>
           <div className="palette-actions">
             <button className="link" onClick={() => reset(exampleGraph())}>
               Load example
