@@ -4,8 +4,14 @@
   --text: #1d1d1f;
   --muted: #6b6b70;
   --border: #dedede;
-  --accent: #2f6fdb;
+  --accent: #0f766e;
+  --accent-soft: #ccfbf1;
   --accent-text: #ffffff;
+  --good-bg: #dcfce7;
+  --good-text: #166534;
+  --map-bg: #e6f2f1;
+  --land: #ffffff;
+  --land-border: #b9cfcd;
   --error-bg: #fdecec;
   --error-text: #a12020;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
@@ -23,7 +29,14 @@
     --text: #ececee;
     --muted: #9a9aa2;
     --border: #34343a;
-    --accent: #5b8fef;
+    --accent: #2dd4bf;
+    --accent-soft: #134e4a;
+    --accent-text: #042f2e;
+    --good-bg: #14321f;
+    --good-text: #86efac;
+    --map-bg: #0f2422;
+    --land: #26262b;
+    --land-border: #3d4a49;
     --error-bg: #3a1d1d;
     --error-text: #f2a3a3;
   }
@@ -187,6 +200,7 @@ section {
 }
 
 textarea,
+input[type='text'],
 .error {
   flex: 1;
   width: 100%;
@@ -202,7 +216,15 @@ textarea,
   tab-size: 4;
 }
 
-textarea:focus {
+input[type='text'] {
+  flex: none;
+}
+
+textarea:focus,
+input[type='text']:focus,
+button:focus-visible,
+select:focus-visible,
+nav a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
 }
@@ -212,4 +234,266 @@ textarea:focus {
   color: var(--error-text);
   white-space: pre-wrap;
   overflow: auto;
+}
+
+.error.compact {
+  flex: none;
+  margin-top: 8px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+/* Segmented control (JWT decode / create) */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.segmented button {
+  border: none;
+  border-radius: 0;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--border);
+}
+
+.segmented button[aria-selected='true'] {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Stacked panes: secondary textareas and inputs within a column */
+section > .pane-header:not(:first-child),
+section > .toolbar {
+  margin-top: 12px;
+}
+
+textarea.token {
+  flex: 2;
+  word-break: break-all;
+}
+
+textarea.key {
+  flex: none;
+  height: 7.5em;
+}
+
+section.scroll {
+  overflow: auto;
+  max-height: 75vh;
+  gap: 12px;
+}
+
+.block pre {
+  margin: 0;
+  padding: 12px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.badge.good {
+  background: var(--good-bg);
+  border-color: transparent;
+  color: var(--good-text);
+}
+
+.badge.bad {
+  background: var(--error-bg);
+  border-color: transparent;
+  color: var(--error-text);
+}
+
+/* Key / value lists (JWT times, time tool) */
+.kv {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.kv > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 11em) 1fr;
+  gap: 4px 12px;
+  padding: 8px 12px;
+  align-items: baseline;
+}
+
+.kv > div + div {
+  border-top: 1px solid var(--border);
+}
+
+.kv dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.kv dd {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kv dd button {
+  flex: none;
+}
+
+.kv code {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+  margin-right: auto;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .kv > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Time tool */
+.panes.auto {
+  min-height: 0;
+  align-items: start;
+}
+
+.card {
+  gap: 10px;
+}
+
+.card > input[type='text'] {
+  margin-top: 0;
+}
+
+.clock {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.clock .muted {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* Map tool */
+.map {
+  flex: 1;
+  min-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--map-bg);
+}
+
+.map.leaflet-container {
+  font: inherit;
+  background: var(--map-bg);
+}
+
+.world-country {
+  fill: var(--land);
+  fill-opacity: 1;
+  stroke: var(--land-border);
+  stroke-width: 0.6;
+}
+
+.geo-feature {
+  stroke: var(--accent);
+  stroke-width: 3;
+  fill: var(--accent);
+  fill-opacity: 0.25;
+}
+
+.geo-line {
+  fill: none;
+}
+
+.geo-point {
+  stroke: var(--surface);
+  stroke-width: 2;
+  fill-opacity: 1;
+}
+
+.leaflet-popup-content table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.leaflet-popup-content td {
+  padding: 2px 6px;
+  vertical-align: top;
+}
+
+.leaflet-popup-content td:first-child {
+  font-weight: 600;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip,
+.leaflet-bar a,
+.leaflet-control-attribution {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--accent) !important;
+}
+
+/* File picker that looks like a button */
+label.file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+label.file .button {
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+label.file:hover .button,
+label.file:focus-within .button {
+  border-color: var(--accent);
 }

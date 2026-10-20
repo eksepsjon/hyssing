@@ -1,11 +1,14 @@
 # Hyssing
 
-Small developer utilities that run entirely in the browser — no server, no network calls.
+Small developer utilities that run entirely in the browser — no server, and your data never leaves the page.
 
 - **Base64** – encode/decode UTF-8 text (standard or URL-safe)
 - **JSON** – validate, format and minify
 - **XML** – validate, format and minify
 - **Markdown** – tidy up with Prettier
+- **JWT** – decode, check expiry, verify signatures (HS/RS/PS/ES with a secret, PEM or JWK) and sign HS256/384/512 tokens
+- **GeoJSON** – render on a map with a bundled offline world outline; OpenStreetMap tiles are opt-in
+- **Time** – live clock in Unix seconds/ms, ISO 8601, RFC 2822, ISO week and any time zone, plus a timestamp/date converter
 
 Built with React + Vite.
 

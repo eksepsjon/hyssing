@@ -25,3 +25,15 @@ export function decodeBase64(input: string): string {
     throw new Error('Decoded data is not valid UTF-8 text')
   }
 }
+
+export function bytesToBase64Url(bytes: Uint8Array): string {
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+export function base64UrlToBytes(input: string): Uint8Array<ArrayBuffer> {
+  const normalized = input.replace(/-/g, '+').replace(/_/g, '/')
+  const binary = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '='))
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0))
+}
