@@ -141,6 +141,15 @@ function Editor() {
   // Only what affects results; dragging nodes around doesn't re-run anything.
   const graphKey = JSON.stringify([nodes.map((n) => [n.id, n.data]), toGraphEdges(edges)])
 
+  // Clock nodes need a fresh result every second; other pipelines only re-run when edited.
+  const hasLiveNode = nodes.some((node) => nodeTypeMap.get(node.data.type)?.live)
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    if (!hasLiveNode) return
+    const timer = setInterval(() => setTick((t) => t + 1), 1000)
+    return () => clearInterval(timer)
+  }, [hasLiveNode])
+
   useEffect(() => {
     let cancelled = false
     const [graphNodes, graphEdges] = JSON.parse(graphKey) as [[string, PipelineFlowNode['data']][], GraphEdge[]]
@@ -151,7 +160,7 @@ function Editor() {
     return () => {
       cancelled = true
     }
-  }, [graphKey])
+  }, [graphKey, tick])
 
   useEffect(() => {
     const timer = setTimeout(() => {

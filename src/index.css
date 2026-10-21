@@ -738,3 +738,18 @@ label.file:focus-within .button {
   color: var(--muted);
   pointer-events: none;
 }
+
+.pipeline-node-params .hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.pipeline-node-params .hint summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.pipeline-node-params .hint div {
+  font-family: var(--mono);
+  line-height: 1.5;
+}

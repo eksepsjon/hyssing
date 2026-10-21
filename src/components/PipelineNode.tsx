@@ -51,8 +51,8 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
           ))}
         </div>
       )}
-      {/* A source node's output is already visible in its own fields. */}
-      {(def.inputs.length > 0 || result?.status !== 'ok') && (
+      {/* A node that holds its own text (Input) already shows its output in that field. */}
+      {(!def.params.some((param) => param.kind === 'textarea') || result?.status !== 'ok') && (
         <pre className="pipeline-node-preview">
           {!result && '…'}
           {result?.status === 'ok' && (result.output === '' ? <span className="muted">(empty)</span> : preview(result.output))}
@@ -100,16 +100,26 @@ function Param({ param, value, onChange }: { param: ParamDef; value: ParamValue;
       )
     default:
       return (
-        <label>
-          <span>{param.label}</span>
-          <input
-            type="text"
-            value={value as string}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={param.placeholder}
-            spellCheck={false}
-          />
-        </label>
+        <>
+          <label>
+            <span>{param.label}</span>
+            <input
+              type="text"
+              value={value as string}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={param.placeholder}
+              spellCheck={false}
+            />
+          </label>
+          {param.hint && (
+            <details className="hint">
+              <summary>Help</summary>
+              {param.hint.split('; ').map((line) => (
+                <div key={line}>{line}</div>
+              ))}
+            </details>
+          )}
+        </>
       )
   }
 }
