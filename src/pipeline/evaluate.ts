@@ -39,9 +39,15 @@ export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[], now 
     if (!def) return { status: 'error', message: `Unknown node type: ${node.type}` }
 
     const inputs: string[] = []
+    const connected: boolean[] = []
     for (let port = 0; port < def.inputs.length; port++) {
       const edge = edges.find((e) => e.target === id && e.targetPort === port && byId.has(e.source))
       const portName = def.inputs.length > 1 ? ` ${def.inputs[port]}` : ''
+      connected.push(!!edge)
+      if (!edge && def.optionalInputs?.includes(port)) {
+        inputs.push('')
+        continue
+      }
       if (!edge) return { status: 'waiting', message: `Connect input${portName}` }
       const upstream = await evaluate(edge.source, visiting)
       if (upstream.status !== 'ok') return { status: 'waiting', message: `Input${portName} has no result` }
@@ -49,7 +55,7 @@ export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[], now 
     }
 
     try {
-      return { status: 'ok', output: await def.run(inputs, node.params, { now }) }
+      return { status: 'ok', output: await def.run(inputs, node.params, { now, connected }) }
     } catch (error) {
       return { status: 'error', message: (error as Error).message }
     }

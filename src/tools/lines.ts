@@ -103,8 +103,16 @@ export function filterLines(lines: string[], pattern: string, options: CompareOp
   return lines.filter((line) => regex.test(line) === options.keep)
 }
 
-/** Replaces every match of `pattern` within each line. The replacement may use $1, $<name> and $&. */
-export function replaceInLines(lines: string[], pattern: string, replacement: string, options: CompareOptions = {}): string[] {
+/**
+ * Replaces every match of `pattern` within each line. The replacement may use $1, $<name> and $&,
+ * unless `literal` is set, in which case it is inserted exactly as given.
+ */
+export function replaceInLines(
+  lines: string[],
+  pattern: string,
+  replacement: string,
+  options: CompareOptions & { literal?: boolean } = {},
+): string[] {
   const regex = compile(pattern, options.ignoreCase ? 'giu' : 'gu')
-  return lines.map((line) => line.replace(regex, replacement))
+  return lines.map((line) => (options.literal ? line.replace(regex, () => replacement) : line.replace(regex, replacement)))
 }

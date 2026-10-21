@@ -22,7 +22,16 @@ import { formatXml, minifyXml } from '../tools/xml'
 export type ParamValue = string | boolean
 
 export type ParamDef =
-  | { key: string; label: string; kind: 'text' | 'textarea'; default: string; placeholder?: string; hint?: string }
+  | {
+      key: string
+      label: string
+      kind: 'text' | 'textarea'
+      default: string
+      placeholder?: string
+      hint?: string
+      /** Index of an input port that supplies this value instead when connected. */
+      fromInput?: number
+    }
   | { key: string; label: string; kind: 'checkbox'; default: boolean }
   | { key: string; label: string; kind: 'select'; default: string; options: { value: string; label: string }[] }
 
@@ -34,6 +43,8 @@ export interface NodeTypeDef {
   category: string
   /** Names of the input ports, in order. Source nodes have none. */
   inputs: string[]
+  /** Ports that may stay unconnected; they then give an empty string and `connected[port]` is false. */
+  optionalInputs?: number[]
   params: ParamDef[]
   /** True for nodes whose output changes with the clock; the pipeline then re-runs every second. */
   live?: boolean
@@ -42,6 +53,8 @@ export interface NodeTypeDef {
 
 export interface RunContext {
   now: Date
+  /** Whether each input port is connected; only meaningful for optional inputs. */
+  connected: boolean[]
 }
 
 const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -190,13 +203,25 @@ export const nodeTypes: NodeTypeDef[] = [
     type: 'replace',
     label: 'Replace',
     category: 'Lines',
-    inputs: ['in'],
+    // "insert" is optional: connected, its text is inserted as is; otherwise "Replace with" is used.
+    inputs: ['text', 'insert'],
+    optionalInputs: [1],
     params: [
       { key: 'pattern', label: 'Regex', kind: 'text', default: '', placeholder: '(\\w+)@(\\w+)' },
-      { key: 'replacement', label: 'Replace with', kind: 'text', default: '', placeholder: '$2 ($1)' },
+      { key: 'replacement', label: 'Replace with', kind: 'text', default: '', placeholder: '$2 ($1)', fromInput: 1 },
       ignoreCase,
     ],
-    run: perLine((lines, p) => replaceInLines(lines, p.pattern as string, p.replacement as string, { ignoreCase: p.ignoreCase as boolean })),
+    run: ([text, insert], p, { connected }) => {
+      const split = splitLines(text)
+      const lines = connected[1]
+        ? // One trailing newline is the end of the inserted text, not part of it.
+          replaceInLines(split.lines, p.pattern as string, insert.replace(/\r?\n$/, ''), {
+            ignoreCase: p.ignoreCase as boolean,
+            literal: true,
+          })
+        : replaceInLines(split.lines, p.pattern as string, p.replacement as string, { ignoreCase: p.ignoreCase as boolean })
+      return joinLines({ ...split, lines })
+    },
   },
   {
     type: 'case',

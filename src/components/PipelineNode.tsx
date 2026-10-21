@@ -1,4 +1,4 @@
-import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { Handle, Position, useNodeConnections, type NodeProps } from '@xyflow/react'
 import { useContext } from 'react'
 import { PipelineContext, type PipelineFlowNode } from '../pipeline/context'
 import { nodeTypeMap, type ParamDef, type ParamValue } from '../pipeline/nodeTypes'
@@ -17,6 +17,8 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
   const { results, setParam, remove } = useContext(PipelineContext)
   const def = nodeTypeMap.get(data.type)
   const result = results.get(id)
+  const connections = useNodeConnections({ handleType: 'target' })
+  const isConnected = (port: number) => connections.some((connection) => connection.targetHandle === `in-${port}`)
   if (!def) return <div className="pipeline-node error">Unknown node: {data.type}</div>
 
   return (
@@ -27,8 +29,9 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
           type="target"
           position={Position.Left}
           id={`in-${port}`}
+          className={def.optionalInputs?.includes(port) ? 'optional' : undefined}
           style={{ top: `${((port + 1) / (def.inputs.length + 1)) * 100}%` }}
-          title={`Input ${name}`}
+          title={def.optionalInputs?.includes(port) ? `Input ${name} (optional)` : `Input ${name}`}
         >
           {def.inputs.length > 1 && <span className="port-label">{name}</span>}
         </Handle>
@@ -47,6 +50,11 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
               param={param}
               value={data.params[param.key] ?? param.default}
               onChange={(value) => setParam(id, param.key, value)}
+              suppliedBy={
+                'fromInput' in param && param.fromInput !== undefined && isConnected(param.fromInput)
+                  ? def.inputs[param.fromInput]
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -64,7 +72,18 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
   )
 }
 
-function Param({ param, value, onChange }: { param: ParamDef; value: ParamValue; onChange: (value: ParamValue) => void }) {
+function Param({
+  param,
+  value,
+  onChange,
+  suppliedBy,
+}: {
+  param: ParamDef
+  value: ParamValue
+  onChange: (value: ParamValue) => void
+  /** Name of the connected input port that provides this value instead. */
+  suppliedBy?: string
+}) {
   switch (param.kind) {
     case 'checkbox':
       return (
@@ -105,9 +124,10 @@ function Param({ param, value, onChange }: { param: ParamDef; value: ParamValue;
             <span>{param.label}</span>
             <input
               type="text"
-              value={value as string}
+              value={suppliedBy ? '' : (value as string)}
               onChange={(e) => onChange(e.target.value)}
-              placeholder={param.placeholder}
+              placeholder={suppliedBy ? `From ${suppliedBy}` : param.placeholder}
+              disabled={!!suppliedBy}
               spellCheck={false}
             />
           </label>
