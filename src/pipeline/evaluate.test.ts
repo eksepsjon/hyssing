@@ -38,6 +38,26 @@ describe('evaluateGraph', () => {
     expect(results.get('lonely')).toEqual({ status: 'waiting', message: 'Connect input' })
   })
 
+  it('feeds the current time into date formatting', async () => {
+    const now = new Date(Date.UTC(2026, 9, 20, 13, 5, 9))
+    const results = await evaluateGraph(
+      [node('now', 'now'), node('fmt', 'dateFormat', { pattern: 'dddd HH:mm Z', timeZone: 'Europe/Oslo', locale: 'nb' }), node('unix', 'now', { as: 'unix' })],
+      [edge('now', 'fmt')],
+      now,
+    )
+    expect(results.get('now')).toEqual({ status: 'ok', output: '2026-10-20T13:05:09.000Z' })
+    expect(results.get('fmt')).toEqual({ status: 'ok', output: 'tirsdag 15:05 +02:00' })
+    expect(results.get('unix')).toEqual({ status: 'ok', output: '1792501509' })
+  })
+
+  it('formats every line and names the bad one', async () => {
+    const results = await evaluateGraph(
+      [node('in', 'input', { text: '0\n\n1700000000000\nnope' }), node('fmt', 'dateFormat', { pattern: 'YYYY-MM-DD', timeZone: 'UTC' })],
+      [edge('in', 'fmt')],
+    )
+    expect(results.get('fmt')).toEqual({ status: 'error', message: 'Line 4 is not a timestamp or date: nope' })
+  })
+
   it('survives a loop', async () => {
     const results = await evaluateGraph([node('a', 'case'), node('b', 'case')], [edge('a', 'b'), edge('b', 'a')])
     expect(results.get('a')?.status).not.toBe('ok')

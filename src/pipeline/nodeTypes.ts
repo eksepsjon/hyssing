@@ -1,4 +1,5 @@
 import { decodeBase64, encodeBase64 } from '../tools/base64'
+import { dateTokens, formatDate } from '../tools/dateFormat'
 import { formatJson, minifyJson } from '../tools/json'
 import { decodeJwt } from '../tools/jwt'
 import {
@@ -21,7 +22,7 @@ import { formatXml, minifyXml } from '../tools/xml'
 export type ParamValue = string | boolean
 
 export type ParamDef =
-  | { key: string; label: string; kind: 'text' | 'textarea'; default: string; placeholder?: string }
+  | { key: string; label: string; kind: 'text' | 'textarea'; default: string; placeholder?: string; hint?: string }
   | { key: string; label: string; kind: 'checkbox'; default: boolean }
   | { key: string; label: string; kind: 'select'; default: string; options: { value: string; label: string }[] }
 
@@ -34,7 +35,55 @@ export interface NodeTypeDef {
   /** Names of the input ports, in order. Source nodes have none. */
   inputs: string[]
   params: ParamDef[]
-  run: (inputs: string[], params: Params) => string | Promise<string>
+  /** True for nodes whose output changes with the clock; the pipeline then re-runs every second. */
+  live?: boolean
+  run: (inputs: string[], params: Params, context: RunContext) => string | Promise<string>
+}
+
+export interface RunContext {
+  now: Date
+}
+
+const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+/** "local" is resolved per viewer, so a shared pipeline shows the opener's own time zone. */
+function resolveZone(zone: string): string {
+  return zone === 'local' ? localZone : zone
+}
+
+const timeZone: ParamDef = {
+  key: 'timeZone',
+  label: 'Time zone',
+  kind: 'select',
+  default: 'local',
+  options: [
+    { value: 'local', label: `Local (${localZone})` },
+    { value: 'UTC', label: 'UTC' },
+    ...(Intl.supportedValuesOf?.('timeZone') ?? []).filter((zone) => zone !== 'UTC').map((zone) => ({ value: zone, label: zone })),
+  ],
+}
+
+const datePattern: ParamDef = {
+  key: 'pattern',
+  label: 'Format',
+  kind: 'text',
+  default: 'YYYY-MM-DD HH:mm:ss',
+  hint: [...dateTokens.map(([token, meaning]) => `${token}: ${meaning}`), '[text]: kept as is'].join('; '),
+}
+
+const dateLocale: ParamDef = {
+  key: 'locale',
+  label: 'Language',
+  kind: 'select',
+  default: 'en',
+  options: [
+    { value: 'en', label: 'English' },
+    { value: 'nb', label: 'Norwegian' },
+    { value: 'da', label: 'Danish' },
+    { value: 'sv', label: 'Swedish' },
+    { value: 'fi', label: 'Finnish' },
+    { value: 'de', label: 'German' },
+  ],
 }
 
 const indent: ParamDef = {
@@ -73,6 +122,28 @@ export const nodeTypes: NodeTypeDef[] = [
     inputs: [],
     params: [{ key: 'text', label: 'Text', kind: 'textarea', default: '', placeholder: 'Type or paste text…' }],
     run: (_, params) => params.text as string,
+  },
+  {
+    type: 'now',
+    label: 'Current time',
+    category: 'Source',
+    inputs: [],
+    live: true,
+    params: [
+      {
+        key: 'as',
+        label: 'As',
+        kind: 'select',
+        default: 'iso',
+        options: [
+          { value: 'iso', label: 'ISO 8601 (UTC)' },
+          { value: 'unix', label: 'Unix seconds' },
+          { value: 'unixMs', label: 'Unix milliseconds' },
+        ],
+      },
+    ],
+    run: (_, params, { now }) =>
+      params.as === 'unix' ? String(Math.floor(now.getTime() / 1000)) : params.as === 'unixMs' ? String(now.getTime()) : now.toISOString(),
   },
   {
     type: 'concat',
@@ -142,6 +213,26 @@ export const nodeTypes: NodeTypeDef[] = [
     inputs: ['in'],
     params: [],
     run: perLine((lines) => lines.map((line) => line.trim())),
+  },
+  {
+    type: 'dateFormat',
+    label: 'Date format',
+    category: 'Time',
+    inputs: ['in'],
+    params: [datePattern, timeZone, dateLocale],
+    // Each non-empty line is a Unix timestamp or date; blank lines pass through.
+    run: perLine((lines, p) =>
+      lines.map((line, i) => {
+        if (!line.trim()) return line
+        let date: Date
+        try {
+          date = parseTime(line).date
+        } catch {
+          throw new Error(`Line ${i + 1} is not a timestamp or date: ${line.trim().slice(0, 40)}`)
+        }
+        return formatDate(date, p.pattern as string, resolveZone(p.timeZone as string), p.locale as string)
+      }),
+    ),
   },
   {
     type: 'timestampToIso',

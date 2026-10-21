@@ -20,7 +20,7 @@ export type NodeResult =
   | { status: 'waiting'; message: string }
 
 /** Evaluates every node, each at most once, feeding outputs along edges. */
-export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[]): Promise<Map<string, NodeResult>> {
+export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[], now = new Date()): Promise<Map<string, NodeResult>> {
   const byId = new Map(nodes.map((node) => [node.id, node]))
   const results = new Map<string, Promise<NodeResult>>()
 
@@ -49,7 +49,7 @@ export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[]): Pro
     }
 
     try {
-      return { status: 'ok', output: await def.run(inputs, node.params) }
+      return { status: 'ok', output: await def.run(inputs, node.params, { now }) }
     } catch (error) {
       return { status: 'error', message: (error as Error).message }
     }
