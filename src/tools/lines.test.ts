@@ -63,5 +63,6 @@ describe('lines', () => {
     expect(replaceInLines(['john smith', 'jane doe'], '(\\w+) (\\w+)', '$2, $1')).toEqual(['smith, john', 'doe, jane'])
     expect(replaceInLines(['a-a', 'A'], 'a', 'b', { ignoreCase: true })).toEqual(['b-b', 'b'])
     expect(() => replaceInLines(['a'], '', 'b')).toThrow(/Enter a regular expression/)
+    expect(replaceInLines(['price: X'], 'X', '$1 & $&', { literal: true })).toEqual(['price: $1 & $&'])
   })
 })

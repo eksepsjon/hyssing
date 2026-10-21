@@ -729,10 +729,16 @@ label.file:focus-within .button {
   border: 2px solid var(--surface);
 }
 
+.pipeline-node .react-flow__handle.optional {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+
+/* Port names sit outside the node, just left of their handle. */
 .port-label {
   position: absolute;
-  left: 14px;
-  top: -6px;
+  right: 14px;
+  top: -14px;
   font-size: 0.65rem;
   font-weight: 600;
   color: var(--muted);

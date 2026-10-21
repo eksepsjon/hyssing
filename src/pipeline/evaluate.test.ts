@@ -58,6 +58,20 @@ describe('evaluateGraph', () => {
     expect(results.get('fmt')).toEqual({ status: 'error', message: 'Line 4 is not a timestamp or date: nope' })
   })
 
+  it('replaces with text from the optional insert input', async () => {
+    const nodes = [
+      node('text', 'input', { text: 'Hello NAME\nBye NAME\n' }),
+      node('name', 'input', { text: 'Åse $1\n' }),
+      node('rep', 'replace', { pattern: 'NAME', replacement: 'fallback' }),
+    ]
+    const withInsert = await evaluateGraph(nodes, [edge('text', 'rep', 0), edge('name', 'rep', 1)])
+    expect(withInsert.get('rep')).toEqual({ status: 'ok', output: 'Hello Åse $1\nBye Åse $1\n' })
+    const withoutInsert = await evaluateGraph(nodes, [edge('text', 'rep', 0)])
+    expect(withoutInsert.get('rep')).toEqual({ status: 'ok', output: 'Hello fallback\nBye fallback\n' })
+    const noText = await evaluateGraph(nodes, [edge('name', 'rep', 1)])
+    expect(noText.get('rep')).toEqual({ status: 'waiting', message: 'Connect input text' })
+  })
+
   it('survives a loop', async () => {
     const results = await evaluateGraph([node('a', 'case'), node('b', 'case')], [edge('a', 'b'), edge('b', 'a')])
     expect(results.get('a')?.status).not.toBe('ok')
