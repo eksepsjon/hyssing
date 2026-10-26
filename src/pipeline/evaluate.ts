@@ -1,4 +1,4 @@
-import { nodeTypeMap, type Params } from './nodeTypes'
+import { nodeTypeMap, WaitingError, type Params } from './nodeTypes'
 
 export interface GraphNode {
   id: string
@@ -19,8 +19,25 @@ export type NodeResult =
   /** Not run: an input is unconnected or failed upstream. */
   | { status: 'waiting'; message: string }
 
+/** State that outlives a single evaluation: action-button clicks and the work done for them. */
+export interface Runtime {
+  /** Clicks on each node's action button, by node id. */
+  clicks: Record<string, number>
+  /** Per node: the click and key the stored work was done for. */
+  done: Map<string, { clicks: number; key: string; result: Promise<unknown> }>
+}
+
+export function emptyRuntime(): Runtime {
+  return { clicks: {}, done: new Map() }
+}
+
 /** Evaluates every node, each at most once, feeding outputs along edges. */
-export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[], now = new Date()): Promise<Map<string, NodeResult>> {
+export async function evaluateGraph(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  now = new Date(),
+  runtime: Runtime = emptyRuntime(),
+): Promise<Map<string, NodeResult>> {
   const byId = new Map(nodes.map((node) => [node.id, node]))
   const results = new Map<string, Promise<NodeResult>>()
 
@@ -54,10 +71,22 @@ export async function evaluateGraph(nodes: GraphNode[], edges: GraphEdge[], now 
       inputs.push(upstream.output)
     }
 
+    const clicks = runtime.clicks[id] ?? 0
+    const oncePerClick = <T>(key: string, work: () => Promise<T>): Promise<T> => {
+      const done = runtime.done.get(id)
+      if (done?.clicks === clicks) {
+        if (done.key === key) return done.result as Promise<T>
+        throw new WaitingError(`Changed since the last run; click ${def.action ?? 'the button'} again`)
+      }
+      const result = work()
+      runtime.done.set(id, { clicks, key, result })
+      return result
+    }
+
     try {
-      return { status: 'ok', output: await def.run(inputs, node.params, { now, connected }) }
+      return { status: 'ok', output: await def.run(inputs, node.params, { now, connected, clicks, oncePerClick }) }
     } catch (error) {
-      return { status: 'error', message: (error as Error).message }
+      return { status: error instanceof WaitingError ? 'waiting' : 'error', message: (error as Error).message }
     }
   }
 

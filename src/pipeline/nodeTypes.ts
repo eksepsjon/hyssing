@@ -1,6 +1,22 @@
 import { decodeBase64, encodeBase64 } from '../tools/base64'
 import { dateTokens, formatDate } from '../tools/dateFormat'
+import { fetchMethods, fetchText, formatResponse } from '../tools/fetch'
 import { formatJson, minifyJson } from '../tools/json'
+import {
+  jsonEscape,
+  jsonFilter,
+  jsonGet,
+  jsonKeys,
+  jsonLength,
+  jsonMap,
+  jsonPick,
+  jsonSort,
+  jsonToCsv,
+  jsonUnescape,
+  linesToJson,
+  type FilterOperator,
+  type ListOutput,
+} from '../tools/jsonOps'
 import { decodeJwt } from '../tools/jwt'
 import {
   filterLines,
@@ -48,6 +64,8 @@ export interface NodeTypeDef {
   params: ParamDef[]
   /** True for nodes whose output changes with the clock; the pipeline then re-runs every second. */
   live?: boolean
+  /** Label of a button on the node; the node only does its work once it has been clicked. */
+  action?: string
   run: (inputs: string[], params: Params, context: RunContext) => string | Promise<string>
 }
 
@@ -55,7 +73,17 @@ export interface RunContext {
   now: Date
   /** Whether each input port is connected; only meaningful for optional inputs. */
   connected: boolean[]
+  /** How often the node's action button was clicked; 0 until it is. */
+  clicks: number
+  /**
+   * Runs `work` once per click and reuses its result on later runs, as long as `key` (what the work
+   * depends on) stays the same. If `key` changes without a new click, the node waits for one.
+   */
+  oncePerClick: <T>(key: string, work: () => Promise<T>) => Promise<T>
 }
+
+/** Thrown by a node that cannot run yet; it is shown as waiting rather than as an error. */
+export class WaitingError extends Error {}
 
 const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
@@ -112,6 +140,26 @@ const indent: ParamDef = {
 }
 const ignoreCase: ParamDef = { key: 'ignoreCase', label: 'Ignore case', kind: 'checkbox', default: false }
 
+const pathHint = 'a.b: field b of object a; items[0]: first element; items[-1]: last element; items[*].id: id of every element; ["odd key"]: a key with spaces or dots; empty: the whole value'
+
+function jsonPath(key: string, label: string, placeholder: string): ParamDef {
+  return { key, label, kind: 'text', default: '', placeholder, hint: pathHint }
+}
+
+/** Where the array is inside the input; empty when the input is the array itself. */
+const arrayPath: ParamDef = { key: 'arrayPath', label: 'Array at', kind: 'text', default: '', placeholder: '(whole input)' }
+
+const listOutput: ParamDef = {
+  key: 'output',
+  label: 'Output',
+  kind: 'select',
+  default: 'lines',
+  options: [
+    { value: 'lines', label: 'One per line' },
+    { value: 'json', label: 'JSON array' },
+  ],
+}
+
 /** Runs a line operation, keeping a trailing newline if the input had one. */
 function perLine(operation: (lines: string[], params: Params) => string[]) {
   return ([input]: string[], params: Params) => {
@@ -157,6 +205,40 @@ export const nodeTypes: NodeTypeDef[] = [
     ],
     run: (_, params, { now }) =>
       params.as === 'unix' ? String(Math.floor(now.getTime() / 1000)) : params.as === 'unixMs' ? String(now.getTime()) : now.toISOString(),
+  },
+  {
+    type: 'fetch',
+    label: 'Fetch URL',
+    category: 'Source',
+    // Both optional: "url" replaces the URL field, "body" is sent with POST/PUT/PATCH.
+    inputs: ['url', 'body'],
+    optionalInputs: [0, 1],
+    action: 'Fetch',
+    params: [
+      { key: 'url', label: 'URL', kind: 'text', default: '', placeholder: 'https://…', fromInput: 0 },
+      { key: 'method', label: 'Method', kind: 'select', default: 'GET', options: fetchMethods.map((method) => ({ value: method, label: method })) },
+      {
+        key: 'output',
+        label: 'Output',
+        kind: 'select',
+        default: 'body',
+        options: [
+          { value: 'body', label: 'Body' },
+          { value: 'full', label: 'Status, headers and body' },
+        ],
+      },
+    ],
+    run: async ([urlInput, body], p, { connected, clicks, oncePerClick }) => {
+      // A trailing newline from an upstream node is not part of the URL.
+      const url = (connected[0] ? urlInput : (p.url as string)).trim()
+      if (!url) throw new WaitingError('Enter a URL')
+      if (!clicks) throw new WaitingError('Click Fetch to load')
+      const method = p.method as string
+      const response = await oncePerClick(JSON.stringify([url, method, body]), () => fetchText(url, method, body))
+      if (p.output === 'full') return formatResponse(response)
+      if (response.status >= 400) throw new Error(`${response.status} ${response.statusText}`.trim())
+      return response.body
+    },
   },
   {
     type: 'concat',
@@ -239,6 +321,109 @@ export const nodeTypes: NodeTypeDef[] = [
     params: [],
     run: perLine((lines) => lines.map((line) => line.trim())),
   },
+  {
+    type: 'jsonGet',
+    label: 'JSON get',
+    category: 'JSON',
+    inputs: ['in'],
+    params: [jsonPath('path', 'Path', 'data.items[0]')],
+    run: ([input], p) => jsonGet(input, p.path as string),
+  },
+  {
+    type: 'jsonMap',
+    label: 'JSON map',
+    category: 'JSON',
+    // "template" is optional: connected, it replaces the Template field.
+    inputs: ['in', 'template'],
+    optionalInputs: [1],
+    params: [
+      jsonPath('path', 'Pick', 'name'),
+      {
+        key: 'template',
+        label: 'Template',
+        kind: 'textarea',
+        default: '',
+        placeholder: 'Or a template, used instead of Pick:\n{name} lives in {address.city}',
+        hint: '{path}: the value at path in each element, e.g. {name}, {address.city}, {tags[0]}; {}: the whole element; {{ and }}: literal braces',
+        fromInput: 1,
+      },
+      arrayPath,
+      listOutput,
+    ],
+    run: ([input, template], p, { connected }) =>
+      jsonMap(input, p.path as string, p.output as ListOutput, p.arrayPath as string, connected[1] ? template : (p.template as string)),
+  },
+  {
+    type: 'jsonPick',
+    label: 'JSON pick fields',
+    category: 'JSON',
+    inputs: ['in'],
+    params: [{ key: 'fields', label: 'Fields', kind: 'text', default: '', placeholder: 'id, name, address.city' }, arrayPath],
+    run: ([input], p) => jsonPick(input, p.fields as string, p.arrayPath as string),
+  },
+  {
+    type: 'jsonFilter',
+    label: 'JSON filter',
+    category: 'JSON',
+    inputs: ['in'],
+    params: [
+      jsonPath('path', 'Where', 'status'),
+      {
+        key: 'operator',
+        label: 'Is',
+        kind: 'select',
+        default: 'equals',
+        options: [
+          { value: 'equals', label: 'equal to' },
+          { value: 'notEquals', label: 'not equal to' },
+          { value: 'contains', label: 'containing' },
+          { value: 'regex', label: 'matching regex' },
+          { value: 'greater', label: 'greater than' },
+          { value: 'less', label: 'less than' },
+          { value: 'exists', label: 'present' },
+          { value: 'missing', label: 'missing or null' },
+        ],
+      },
+      { key: 'value', label: 'Value', kind: 'text', default: '' },
+      arrayPath,
+    ],
+    run: ([input], p) => jsonFilter(input, p.path as string, p.operator as FilterOperator, p.value as string, p.arrayPath as string),
+  },
+  {
+    type: 'jsonSort',
+    label: 'JSON sort',
+    category: 'JSON',
+    inputs: ['in'],
+    params: [
+      jsonPath('path', 'By', 'name'),
+      { key: 'order', label: 'Order', kind: 'select', default: 'asc', options: [{ value: 'asc', label: 'Ascending' }, { value: 'desc', label: 'Descending' }] },
+      arrayPath,
+    ],
+    run: ([input], p) => jsonSort(input, p.path as string, p.order === 'desc', p.arrayPath as string),
+  },
+  { type: 'jsonKeys', label: 'JSON keys', category: 'JSON', inputs: ['in'], params: [jsonPath('path', 'Of', '(whole input)')], run: ([input], p) => jsonKeys(input, p.path as string) },
+  { type: 'jsonLength', label: 'JSON length', category: 'JSON', inputs: ['in'], params: [jsonPath('path', 'Of', '(whole input)')], run: ([input], p) => jsonLength(input, p.path as string) },
+  {
+    type: 'jsonToCsv',
+    label: 'JSON → CSV',
+    category: 'JSON',
+    inputs: ['in'],
+    params: [
+      { key: 'separator', label: 'Separator', kind: 'select', default: ',', options: [{ value: ',', label: 'Comma' }, { value: ';', label: 'Semicolon' }, { value: '\t', label: 'Tab' }] },
+      arrayPath,
+    ],
+    run: ([input], p) => jsonToCsv(input, p.separator as string, p.arrayPath as string),
+  },
+  {
+    type: 'linesToJson',
+    label: 'Lines → JSON array',
+    category: 'JSON',
+    inputs: ['in'],
+    params: [{ key: 'parse', label: 'Parse each line as JSON', kind: 'checkbox', default: false }],
+    run: ([input], p) => linesToJson(input, p.parse as boolean),
+  },
+  { type: 'jsonEscape', label: 'JSON escape string', category: 'JSON', inputs: ['in'], params: [], run: ([input]) => jsonEscape(input) },
+  { type: 'jsonUnescape', label: 'JSON unescape string', category: 'JSON', inputs: ['in'], params: [], run: ([input]) => jsonUnescape(input) },
   {
     type: 'dateFormat',
     label: 'Date format',

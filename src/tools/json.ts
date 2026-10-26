@@ -6,7 +6,7 @@ export function minifyJson(input: string): string {
   return JSON.stringify(parseJson(input))
 }
 
-function parseJson(input: string): unknown {
+export function parseJson(input: string): unknown {
   try {
     return JSON.parse(input)
   } catch (error) {

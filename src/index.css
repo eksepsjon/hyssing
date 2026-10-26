@@ -759,3 +759,12 @@ label.file:focus-within .button {
   font-family: var(--mono);
   line-height: 1.5;
 }
+
+.pipeline-node-action {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pipeline-node-action button {
+  width: 100%;
+}

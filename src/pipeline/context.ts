@@ -10,6 +10,8 @@ export interface PipelineActions {
   results: Map<string, NodeResult>
   setParam: (id: string, key: string, value: ParamValue) => void
   remove: (id: string) => void
+  /** Clicks the node's action button. */
+  act: (id: string) => void
 }
 
-export const PipelineContext = createContext<PipelineActions>({ results: new Map(), setParam: () => {}, remove: () => {} })
+export const PipelineContext = createContext<PipelineActions>({ results: new Map(), setParam: () => {}, remove: () => {}, act: () => {} })

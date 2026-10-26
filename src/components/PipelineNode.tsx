@@ -14,7 +14,7 @@ function preview(output: string): string {
 }
 
 export default function PipelineNode({ id, data, selected }: NodeProps<PipelineFlowNode>) {
-  const { results, setParam, remove } = useContext(PipelineContext)
+  const { results, setParam, remove, act } = useContext(PipelineContext)
   const def = nodeTypeMap.get(data.type)
   const result = results.get(id)
   const connections = useNodeConnections({ handleType: 'target' })
@@ -59,8 +59,13 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
           ))}
         </div>
       )}
-      {/* A node that holds its own text (Input) already shows its output in that field. */}
-      {(!def.params.some((param) => param.kind === 'textarea') || result?.status !== 'ok') && (
+      {def.action && (
+        <div className="pipeline-node-action nodrag">
+          <button onClick={() => act(id)}>{def.action}</button>
+        </div>
+      )}
+      {/* A source that holds its own text (Input) already shows its output in that field. */}
+      {(def.inputs.length > 0 || !def.params.some((param) => param.kind === 'textarea') || result?.status !== 'ok') && (
         <pre className="pipeline-node-preview">
           {!result && '…'}
           {result?.status === 'ok' && (result.output === '' ? <span className="muted">(empty)</span> : preview(result.output))}
@@ -107,15 +112,19 @@ function Param({
       )
     case 'textarea':
       return (
-        <textarea
-          className="nowheel"
-          value={value as string}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={param.placeholder}
-          spellCheck={false}
-          aria-label={param.label}
-          rows={6}
-        />
+        <>
+          <textarea
+            className="nowheel"
+            value={suppliedBy ? '' : (value as string)}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={suppliedBy ? `From ${suppliedBy}` : param.placeholder}
+            disabled={!!suppliedBy}
+            spellCheck={false}
+            aria-label={param.label}
+            rows={param.hint ? 3 : 6}
+          />
+          {param.hint && <Hint hint={param.hint} />}
+        </>
       )
     default:
       return (
@@ -131,15 +140,19 @@ function Param({
               spellCheck={false}
             />
           </label>
-          {param.hint && (
-            <details className="hint">
-              <summary>Help</summary>
-              {param.hint.split('; ').map((line) => (
-                <div key={line}>{line}</div>
-              ))}
-            </details>
-          )}
+          {param.hint && <Hint hint={param.hint} />}
         </>
       )
   }
+}
+
+function Hint({ hint }: { hint: string }) {
+  return (
+    <details className="hint">
+      <summary>Help</summary>
+      {hint.split('; ').map((line) => (
+        <div key={line}>{line}</div>
+      ))}
+    </details>
+  )
 }

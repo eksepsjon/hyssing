@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { evaluateGraph, wouldCreateCycle, type GraphEdge, type NodeResult } from '../pipeline/evaluate'
+import { emptyRuntime, evaluateGraph, wouldCreateCycle, type GraphEdge, type NodeResult } from '../pipeline/evaluate'
 import { defaultParams, nodeTypeMap, nodeTypes, type ParamValue } from '../pipeline/nodeTypes'
 import { decodePipeline, encodePipeline, type SharedPipeline } from '../pipeline/share'
 import CopyButton from './CopyButton'
@@ -117,6 +117,9 @@ function Editor() {
   const { screenToFlowPosition, setViewport } = useReactFlow()
   const nodesInitialized = useNodesInitialized()
   const needsFraming = useRef(true)
+  // Button clicks and fetched responses live only in this session: never saved or shared.
+  const runtime = useRef(emptyRuntime())
+  const [clicks, setClicks] = useState<Record<string, number>>({})
 
   // Frame the graph like fitView, but never below a readable zoom; when it is still too wide,
   // start from its left edge (where pipelines begin) instead of the middle.
@@ -153,14 +156,17 @@ function Editor() {
   useEffect(() => {
     let cancelled = false
     const [graphNodes, graphEdges] = JSON.parse(graphKey) as [[string, PipelineFlowNode['data']][], GraphEdge[]]
+    runtime.current.clicks = clicks
     evaluateGraph(
       graphNodes.map(([id, data]) => ({ id, ...data })),
       graphEdges,
+      new Date(),
+      runtime.current,
     ).then((next) => !cancelled && setResults(next))
     return () => {
       cancelled = true
     }
-  }, [graphKey, tick])
+  }, [graphKey, tick, clicks])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -181,13 +187,19 @@ function Editor() {
 
   const remove = useCallback(
     (id: string) => {
+      runtime.current.done.delete(id)
       setNodes((all) => all.filter((node) => node.id !== id))
       setEdges((all) => all.filter((edge) => edge.source !== id && edge.target !== id))
     },
     [setNodes, setEdges],
   )
 
-  const actions = useMemo(() => ({ results, setParam, remove }), [results, setParam, remove])
+  const act = useCallback((id: string) => {
+    setClicks((all) => ({ ...all, [id]: (all[id] ?? 0) + 1 }))
+    setResults((all) => new Map(all).set(id, { status: 'waiting', message: 'Working…' }))
+  }, [])
+
+  const actions = useMemo(() => ({ results, setParam, remove, act }), [results, setParam, remove, act])
 
   const isValidConnection: IsValidConnection = useCallback(
     (connection) => !wouldCreateCycle(toGraphEdges(edges), connection.source, connection.target),
@@ -221,6 +233,8 @@ function Editor() {
   }
 
   function reset(graph: { nodes: PipelineFlowNode[]; edges: Edge[] }) {
+    runtime.current = emptyRuntime()
+    setClicks({})
     setNodes(graph.nodes)
     setEdges(graph.edges)
     setViewedId(graph.nodes.at(-1)?.id)
