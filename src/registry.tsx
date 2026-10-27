@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import DiffTool from './components/DiffTool'
 import JwtTool from './components/JwtTool'
 import MapTool from './components/LazyMapTool'
 import PipelineTool from './components/LazyPipelineTool'
@@ -23,6 +24,12 @@ export const tools: Tool[] = [
     name: 'Text',
     description: 'Sort, deduplicate, shuffle, filter and find-and-replace line by line. Chain steps with "Use as input".',
     render: () => <LinesTool />,
+  },
+  {
+    id: 'diff',
+    name: 'Diff',
+    description: 'Compare two texts line by line, or two JSON documents value by value. Updates as you type.',
+    render: () => <DiffTool />,
   },
   {
     id: 'pipeline',
