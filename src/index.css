@@ -768,3 +768,175 @@ label.file:focus-within .button {
 .pipeline-node-action button {
   width: 100%;
 }
+
+/* Diff tool */
+:root {
+  --add-bg: #e6f6ec;
+  --add-mark: #a7e3bc;
+  --remove-bg: #fdecec;
+  --remove-mark: #f5b8b8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --add-bg: #15301f;
+    --add-mark: #1f6b3a;
+    --remove-bg: #3a1d1d;
+    --remove-mark: #7a2c2c;
+  }
+}
+
+.panes.compact {
+  flex: none;
+  min-height: 0;
+  grid-auto-rows: 220px;
+}
+
+.diff-header {
+  margin-top: 12px;
+  gap: 12px;
+}
+
+.diff-header label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diff-added-count {
+  color: var(--good-text);
+  font-weight: 600;
+}
+
+.diff-removed-count {
+  color: var(--error-text);
+  font-weight: 600;
+}
+
+.diff {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: auto;
+  max-height: 70vh;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.diff-row {
+  display: grid;
+  grid-template-columns: 3.5em 3.5em 1.5em minmax(0, 1fr);
+}
+
+.diff-row.add {
+  background: var(--add-bg);
+}
+
+.diff-row.remove {
+  background: var(--remove-bg);
+}
+
+.diff-row.skip {
+  display: block;
+  padding: 2px 12px;
+  color: var(--muted);
+  background: var(--bg);
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+}
+
+.diff-no {
+  padding: 0 8px;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+}
+
+.diff-sign {
+  text-align: center;
+  color: var(--muted);
+  user-select: none;
+}
+
+.diff-text {
+  padding-right: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.diff-text mark {
+  color: inherit;
+  border-radius: 2px;
+}
+
+.diff-row.add mark {
+  background: var(--add-mark);
+}
+
+.diff-row.remove mark {
+  background: var(--remove-mark);
+}
+
+.json-changes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: auto;
+  max-height: 70vh;
+}
+
+.json-changes li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  padding: 8px 12px;
+}
+
+.json-changes li + li {
+  border-top: 1px solid var(--border);
+}
+
+.json-changes .badge {
+  min-width: 5.5em;
+  text-align: center;
+}
+
+.json-path {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.json-values {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.json-values pre {
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 16em;
+  overflow: auto;
+}
+
+.json-values pre.add {
+  background: var(--add-bg);
+}
+
+.json-values pre.remove {
+  background: var(--remove-bg);
+}
