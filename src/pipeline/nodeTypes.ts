@@ -21,6 +21,7 @@ import { decodeJwt } from '../tools/jwt'
 import {
   filterLines,
   joinLines,
+  joinWithSeparator,
   removeEmptyLines,
   replaceInLines,
   reverseLines,
@@ -335,6 +336,21 @@ export const nodeTypes: NodeTypeDef[] = [
         ignoreCase: p.ignoreCase as boolean,
       }),
     ),
+  },
+  {
+    type: 'join',
+    label: 'Join lines',
+    category: 'Lines',
+    inputs: ['in'],
+    params: [
+      { key: 'separator', label: 'Separator', kind: 'text', default: ', ', placeholder: '(nothing)' },
+      { key: 'skipEmpty', label: 'Skip empty lines', kind: 'checkbox', default: true },
+      escapes,
+    ],
+    run: ([input], p) =>
+      joinWithSeparator(splitLines(input).lines, p.escapes ? unescapeWhitespace(p.separator as string) : (p.separator as string), {
+        skipEmpty: p.skipEmpty as boolean,
+      }),
   },
   {
     type: 'case',

@@ -91,6 +91,15 @@ describe('evaluateGraph', () => {
     expect(results.get('raw')).toEqual({ status: 'ok', output: 'a\\nb\tc\n' })
   })
 
+  it('joins lines, dropping the trailing newline', async () => {
+    const results = await evaluateGraph(
+      [node('in', 'input', { text: 'a\n\nb\n' }), node('join', 'join'), node('tab', 'join', { separator: '\\t', skipEmpty: false })],
+      [edge('in', 'join'), edge('in', 'tab')],
+    )
+    expect(results.get('join')).toEqual({ status: 'ok', output: 'a, b' })
+    expect(results.get('tab')).toEqual({ status: 'ok', output: 'a\t\tb' })
+  })
+
   it('fetches only when clicked, once per click', async () => {
     const fetchMock = vi.fn(async (_url: unknown, init?: RequestInit) => new Response(JSON.stringify([{ id: 1 }, { id: 2 }]) + (init?.body ?? ''), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)

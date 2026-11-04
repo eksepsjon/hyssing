@@ -3,10 +3,7 @@ import DiffTool from './components/DiffTool'
 import JwtTool from './components/JwtTool'
 import MapTool from './components/LazyMapTool'
 import PipelineTool from './components/LazyPipelineTool'
-import LinesTool from './components/LinesTool'
-import TextTool from './components/TextTool'
 import TimeTool from './components/TimeTool'
-import { textTools } from './tools/text'
 
 export interface Tool {
   id: string
@@ -18,25 +15,18 @@ export interface Tool {
 }
 
 export const tools: Tool[] = [
-  ...textTools.map((tool) => ({ ...tool, render: () => <TextTool tool={tool} /> })),
   {
-    id: 'text',
-    name: 'Text',
-    description: 'Sort, deduplicate, shuffle, filter and find-and-replace line by line. Chain steps with "Use as input".',
-    render: () => <LinesTool />,
+    id: 'pipeline',
+    name: 'Pipeline',
+    description: 'Edit text by chaining nodes: Base64, JSON, XML, Markdown, line operations and more. Each node transforms its input and feeds the next. Drag from a node’s right edge to another’s left edge to connect.',
+    wide: true,
+    render: () => <PipelineTool />,
   },
   {
     id: 'diff',
     name: 'Diff',
     description: 'Compare two texts line by line, or two JSON documents value by value. Updates as you type.',
     render: () => <DiffTool />,
-  },
-  {
-    id: 'pipeline',
-    name: 'Pipeline',
-    description: 'Chain tools as nodes: each node transforms its input and feeds the next. Drag from a node’s right edge to another’s left edge to connect.',
-    wide: true,
-    render: () => <PipelineTool />,
   },
   {
     id: 'jwt',
