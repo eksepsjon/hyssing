@@ -1,5 +1,5 @@
 import { Handle, Position, useNodeConnections, type NodeProps } from '@xyflow/react'
-import { useContext } from 'react'
+import { useContext, useEffect, useRef, useState, type ComponentProps } from 'react'
 import { PipelineContext, type PipelineFlowNode } from '../pipeline/context'
 import { nodeTypeMap, type ParamDef, type ParamValue } from '../pipeline/nodeTypes'
 
@@ -135,10 +135,11 @@ function Param({
     case 'textarea':
       return (
         <>
-          <textarea
+          <DraftField
+            as="textarea"
             className="nowheel"
             value={suppliedBy ? '' : (value as string)}
-            onChange={(e) => onChange(e.target.value)}
+            onValue={onChange}
             placeholder={suppliedBy ? `From ${suppliedBy}` : param.placeholder}
             disabled={!!suppliedBy}
             spellCheck={false}
@@ -153,10 +154,11 @@ function Param({
         <>
           <label>
             <span>{param.label}</span>
-            <input
+            <DraftField
+              as="input"
               type="text"
               value={suppliedBy ? '' : (value as string)}
-              onChange={(e) => onChange(e.target.value)}
+              onValue={onChange}
               placeholder={suppliedBy ? `From ${suppliedBy}` : param.placeholder}
               disabled={!!suppliedBy}
               spellCheck={false}
@@ -176,5 +178,37 @@ function Hint({ hint }: { hint: string }) {
         <div key={line}>{line}</div>
       ))}
     </details>
+  )
+}
+
+type DraftFieldProps =
+  | ({ as: 'input'; value: string; onValue: (value: string) => void } & Omit<ComponentProps<'input'>, 'value' | 'onChange'>)
+  | ({ as: 'textarea'; value: string; onValue: (value: string) => void } & Omit<ComponentProps<'textarea'>, 'value' | 'onChange'>)
+
+/**
+ * A text field that keeps what is typed in its own state. React Flow re-renders a node only after
+ * its store has caught up, so a field bound straight to the node's params would be reset to the old
+ * value for a moment on every keystroke, throwing the cursor to the end.
+ */
+function DraftField({ as, value, onValue, ...props }: DraftFieldProps) {
+  const [draft, setDraft] = useState(value)
+  const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+  // Take outside changes (a loaded or imported pipeline, a connected input), but not while typing:
+  // then the params are only catching up with the draft.
+  useEffect(() => {
+    if (document.activeElement !== ref.current) setDraft(value)
+  }, [value])
+  const shared = {
+    ref,
+    value: draft,
+    onChange: (e: { target: { value: string } }) => {
+      setDraft(e.target.value)
+      onValue(e.target.value)
+    },
+  }
+  return as === 'textarea' ? (
+    <textarea {...(props as ComponentProps<'textarea'>)} {...shared} />
+  ) : (
+    <input {...(props as ComponentProps<'input'>)} {...shared} />
   )
 }
