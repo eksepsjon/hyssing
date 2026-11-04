@@ -133,18 +133,19 @@ describe('evaluateGraph', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it('reports fetch failures', async () => {
+  it('gives fetch body, status and headers on separate outputs, and reports bad URLs', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('gone', { status: 404, statusText: 'Not Found' })))
-    const runtime = { ...emptyRuntime(), clicks: { a: 1, b: 1, c: 1 } }
+    const runtime = { ...emptyRuntime(), clicks: { a: 1, b: 1 } }
     const results = await evaluateGraph(
-      [node('a', 'fetch', { url: 'https://example.com' }), node('b', 'fetch', { url: 'example.com' }), node('c', 'fetch', { url: 'https://example.com', output: 'full' })],
-      [],
+      [node('a', 'fetch', { url: 'https://example.com' }), node('b', 'fetch', { url: 'example.com' }), node('s', 'trim'), node('h', 'trim')],
+      [{ source: 'a', target: 's', targetPort: 0, sourcePort: 1 }, { source: 'a', target: 'h', targetPort: 0, sourcePort: 2 }],
       new Date(),
       runtime,
     )
-    expect(results.get('a')).toEqual({ status: 'error', message: '404 Not Found' })
+    expect(results.get('a')).toEqual({ status: 'ok', output: 'gone', outputs: ['gone', '404', 'content-type: text/plain;charset=UTF-8'] })
+    expect(results.get('s')).toEqual({ status: 'ok', output: '404' })
+    expect(results.get('h')).toEqual({ status: 'ok', output: 'content-type: text/plain;charset=UTF-8' })
     expect(results.get('b')?.status).toBe('error')
-    expect(results.get('c')).toEqual({ status: 'ok', output: '404 Not Found\ncontent-type: text/plain;charset=UTF-8\n\ngone' })
   })
 
   it('maps with a template from the template input', async () => {
