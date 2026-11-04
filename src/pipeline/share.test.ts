@@ -8,11 +8,13 @@ const pipeline: SharedPipeline = {
     { id: 'n1', type: 'input', params: { text: 'Åse\nbanana 🍌' }, position: { x: 0.4, y: 10 } },
     { id: 'n2', type: 'sort', params: { ...defaultParams(nodeTypeMap.get('sort')!), order: 'desc' }, position: { x: 280, y: 0 } },
     { id: 'n3', type: 'concat', params: { separator: ', ' }, position: { x: 560, y: 0 } },
+    { id: 'n4', type: 'jwtDecode', params: {}, position: { x: 0, y: 200 } },
   ],
   edges: [
-    { source: 'n1', target: 'n2', targetPort: 0 },
-    { source: 'n1', target: 'n3', targetPort: 0 },
-    { source: 'n2', target: 'n3', targetPort: 1 },
+    { source: 'n1', target: 'n2', targetPort: 0, sourcePort: 0 },
+    { source: 'n1', target: 'n3', targetPort: 0, sourcePort: 0 },
+    { source: 'n2', target: 'n3', targetPort: 1, sourcePort: 0 },
+    { source: 'n4', target: 'n2', targetPort: 0, sourcePort: 1 },
   ],
 }
 
@@ -27,7 +29,7 @@ describe('share', () => {
   it('produces URL-safe output and accepts whole links', () => {
     const encoded = encodePipeline(pipeline)
     expect(encoded).toMatch(/^[A-Za-z0-9_-]+$/)
-    expect(decodePipeline(`https://example.com/hyssing/#pipeline=${encoded}`).nodes).toHaveLength(3)
+    expect(decodePipeline(`https://example.com/hyssing/#pipeline=${encoded}`).nodes).toHaveLength(4)
   })
 
   it('rejects garbage and unknown nodes', () => {

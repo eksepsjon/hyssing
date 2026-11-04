@@ -68,11 +68,33 @@ export default function PipelineNode({ id, data, selected }: NodeProps<PipelineF
       {(def.inputs.length > 0 || !def.params.some((param) => param.kind === 'textarea') || result?.status !== 'ok') && (
         <pre className="pipeline-node-preview">
           {!result && '…'}
-          {result?.status === 'ok' && (result.output === '' ? <span className="muted">(empty)</span> : preview(result.output))}
+          {result?.status === 'ok' &&
+            (def.outputs
+              ? def.outputs.map((name, port) => (
+                  <div key={name} className="preview-part">
+                    <span className="muted">{name}</span>
+                    {'\n'}
+                    {result.outputs?.[port] ? preview(result.outputs[port]) : <span className="muted">(empty)</span>}
+                  </div>
+                ))
+              : result.output === ''
+                ? <span className="muted">(empty)</span>
+                : preview(result.output))}
           {result && result.status !== 'ok' && result.message}
         </pre>
       )}
-      <Handle type="source" position={Position.Right} id="out" title="Output" />
+      {(def.outputs ?? ['out']).map((name, port, all) => (
+        <Handle
+          key={name}
+          type="source"
+          position={Position.Right}
+          id={`out-${port}`}
+          style={{ top: `${((port + 1) / (all.length + 1)) * 100}%` }}
+          title={all.length > 1 ? `Output ${name}` : 'Output'}
+        >
+          {all.length > 1 && <span className="port-label out">{name}</span>}
+        </Handle>
+      ))}
     </div>
   )
 }

@@ -28,7 +28,8 @@ export function encodePipeline({ nodes, edges }: SharedPipeline): string {
       const changed = Object.fromEntries(Object.entries(node.params).filter(([key, value]) => defaults[key] !== value))
       return [node.id, node.type, Math.round(node.position.x), Math.round(node.position.y), changed]
     }),
-    e: edges.map((edge) => [edge.source, edge.target, edge.targetPort]),
+    // The source port is only written when it isn't the first, keeping older links valid and short.
+    e: edges.map((edge) => (edge.sourcePort ? [edge.source, edge.target, edge.targetPort, edge.sourcePort] : [edge.source, edge.target, edge.targetPort])),
   }
   return encodeBase64(JSON.stringify(compact), true)
 }
@@ -62,7 +63,12 @@ export function decodePipeline(input: string): SharedPipeline {
 
   const ids = new Set(nodes.map((node) => node.id))
   const edges = (compact.e as unknown[][])
-    .map(([source, target, port]) => ({ source: String(source), target: String(target), targetPort: Number(port) || 0 }))
+    .map(([source, target, port, sourcePort]) => ({
+      source: String(source),
+      target: String(target),
+      targetPort: Number(port) || 0,
+      sourcePort: Number(sourcePort) || 0,
+    }))
     .filter((edge) => ids.has(edge.source) && ids.has(edge.target))
   return { nodes, edges }
 }

@@ -11,10 +11,13 @@ export interface GraphEdge {
   target: string
   /** Index of the target's input port. */
   targetPort: number
+  /** Index of the source's output port; 0 when left out. */
+  sourcePort?: number
 }
 
 export type NodeResult =
-  | { status: 'ok'; output: string }
+  /** `output` is the first output; nodes with several output ports also give all of them in `outputs`. */
+  | { status: 'ok'; output: string; outputs?: string[] }
   | { status: 'error'; message: string }
   /** Not run: an input is unconnected or failed upstream. */
   | { status: 'waiting'; message: string }
@@ -68,7 +71,7 @@ export async function evaluateGraph(
       if (!edge) return { status: 'waiting', message: `Connect input${portName}` }
       const upstream = await evaluate(edge.source, visiting)
       if (upstream.status !== 'ok') return { status: 'waiting', message: `Input${portName} has no result` }
-      inputs.push(upstream.output)
+      inputs.push(upstream.outputs?.[edge.sourcePort ?? 0] ?? upstream.output)
     }
 
     const clicks = runtime.clicks[id] ?? 0
@@ -84,7 +87,8 @@ export async function evaluateGraph(
     }
 
     try {
-      return { status: 'ok', output: await def.run(inputs, node.params, { now, connected, clicks, oncePerClick }) }
+      const output = await def.run(inputs, node.params, { now, connected, clicks, oncePerClick })
+      return Array.isArray(output) ? { status: 'ok', output: output[0] ?? '', outputs: output } : { status: 'ok', output }
     } catch (error) {
       return { status: error instanceof WaitingError ? 'waiting' : 'error', message: (error as Error).message }
     }

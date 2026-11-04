@@ -724,6 +724,32 @@ label.file:focus-within .button {
   pointer-events: none;
 }
 
+/* Output names sit just right of their handle. */
+.port-label.out {
+  right: auto;
+  left: 14px;
+}
+
+.preview-part + .preview-part {
+  margin-top: 4px;
+}
+
+.output-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.output-tabs button {
+  padding: 2px 10px;
+  font-size: 0.8rem;
+}
+
+.output-tabs button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .pipeline-node-params .hint {
   font-size: 0.72rem;
   color: var(--muted);
