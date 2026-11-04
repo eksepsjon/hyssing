@@ -28,7 +28,9 @@ import {
   shuffleLines,
   sortLines,
   sortLocales,
+  splitIntoLines,
   splitLines,
+  unescapeWhitespace,
   uniqueLines,
 } from '../tools/lines'
 import { formatMarkdown } from '../tools/markdown'
@@ -139,6 +141,7 @@ const indent: ParamDef = {
   ],
 }
 const ignoreCase: ParamDef = { key: 'ignoreCase', label: 'Ignore case', kind: 'checkbox', default: false }
+const escapes: ParamDef = { key: 'escapes', label: 'Interpret \\n \\t \\r \\\\ \\uXXXX', kind: 'checkbox', default: true }
 
 const pathHint = 'a.b: field b of object a; items[0]: first element; items[-1]: last element; items[*].id: id of every element; ["odd key"]: a key with spaces or dots; empty: the whole value'
 
@@ -292,6 +295,7 @@ export const nodeTypes: NodeTypeDef[] = [
       { key: 'pattern', label: 'Regex', kind: 'text', default: '', placeholder: '(\\w+)@(\\w+)' },
       { key: 'replacement', label: 'Replace with', kind: 'text', default: '', placeholder: '$2 ($1)', fromInput: 1 },
       ignoreCase,
+      escapes,
     ],
     run: ([text, insert], p, { connected }) => {
       const split = splitLines(text)
@@ -301,9 +305,36 @@ export const nodeTypes: NodeTypeDef[] = [
             ignoreCase: p.ignoreCase as boolean,
             literal: true,
           })
-        : replaceInLines(split.lines, p.pattern as string, p.replacement as string, { ignoreCase: p.ignoreCase as boolean })
+        : replaceInLines(
+            split.lines,
+            p.pattern as string,
+            p.escapes ? unescapeWhitespace(p.replacement as string) : (p.replacement as string),
+            { ignoreCase: p.ignoreCase as boolean },
+          )
       return joinLines({ ...split, lines })
     },
+  },
+  {
+    type: 'split',
+    label: 'Split into lines',
+    category: 'Lines',
+    inputs: ['in'],
+    params: [
+      { key: 'separator', label: 'Separator', kind: 'text', default: ',', placeholder: ', or \\t or ;\\s*' },
+      { key: 'regex', label: 'Separator is a regex', kind: 'checkbox', default: false },
+      { key: 'trim', label: 'Trim parts', kind: 'checkbox', default: true },
+      { key: 'removeEmpty', label: 'Remove empty parts', kind: 'checkbox', default: false },
+      ignoreCase,
+      escapes,
+    ],
+    run: perLine((lines, p) =>
+      splitIntoLines(lines, p.escapes && !p.regex ? unescapeWhitespace(p.separator as string) : (p.separator as string), {
+        regex: p.regex as boolean,
+        trim: p.trim as boolean,
+        removeEmpty: p.removeEmpty as boolean,
+        ignoreCase: p.ignoreCase as boolean,
+      }),
+    ),
   },
   {
     type: 'case',
