@@ -1,6 +1,6 @@
 import { decodeBase64, encodeBase64 } from '../tools/base64'
 import { dateTokens, formatDate } from '../tools/dateFormat'
-import { fetchMethods, fetchText, formatResponse } from '../tools/fetch'
+import { fetchMethods, fetchText, formatHeaders } from '../tools/fetch'
 import { formatJson, minifyJson } from '../tools/json'
 import {
   jsonEscape,
@@ -223,17 +223,9 @@ export const nodeTypes: NodeTypeDef[] = [
     params: [
       { key: 'url', label: 'URL', kind: 'text', default: '', placeholder: 'https://…', fromInput: 0 },
       { key: 'method', label: 'Method', kind: 'select', default: 'GET', options: fetchMethods.map((method) => ({ value: method, label: method })) },
-      {
-        key: 'output',
-        label: 'Output',
-        kind: 'select',
-        default: 'body',
-        options: [
-          { value: 'body', label: 'Body' },
-          { value: 'full', label: 'Status, headers and body' },
-        ],
-      },
     ],
+    // Body first: pipelines made when this node had an Output select connected its only output.
+    outputs: ['body', 'status', 'headers'],
     run: async ([urlInput, body], p, { connected, clicks, oncePerClick }) => {
       // A trailing newline from an upstream node is not part of the URL.
       const url = (connected[0] ? urlInput : (p.url as string)).trim()
@@ -241,9 +233,8 @@ export const nodeTypes: NodeTypeDef[] = [
       if (!clicks) throw new WaitingError('Click Fetch to load')
       const method = p.method as string
       const response = await oncePerClick(JSON.stringify([url, method, body]), () => fetchText(url, method, body))
-      if (p.output === 'full') return formatResponse(response)
-      if (response.status >= 400) throw new Error(`${response.status} ${response.statusText}`.trim())
-      return response.body
+      // An error status is not a node error: the body often explains it, and status can be checked downstream.
+      return [response.body, String(response.status), formatHeaders(response.headers)]
     },
   },
   {

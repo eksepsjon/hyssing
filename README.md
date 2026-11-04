@@ -2,7 +2,7 @@
 
 Small developer utilities that run entirely in the browser — no server, and your data never leaves the page.
 
-- **Pipeline** – all text editing happens here, as a node graph: each node transforms its input and feeds the next. Start from text, the current time or a URL (fetched only when you click Fetch, and only from sites that allow cross-origin requests), then:
+- **Pipeline** – all text editing happens here, as a node graph: each node transforms its input and feeds the next. Start from text, the current time or a URL (fetched only when you click Fetch, and only from sites that allow cross-origin requests; body, status and headers are separate outputs), then:
   - **Encode** – Base64 encode/decode (standard or URL-safe), JWT decode
   - **Format** – validate, format and minify JSON and XML; tidy Markdown with Prettier
   - **Lines** – sort (A→Z, Z→A, natural number order, per-language alphabet such as Norwegian æ ø å), remove duplicates, shuffle, reverse, remove empty lines, trim, change case, filter by regex, regex find-and-replace with capture groups, split into lines at a separator (text or regex) and join lines with a separator; `\n`, `\t`, `\r`, `\\` and `\uXXXX` in a replacement or separator become the characters they stand for (on by default)

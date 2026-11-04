@@ -34,7 +34,7 @@ export async function fetchText(url: string, method = 'GET', body?: string): Pro
   }
 }
 
-/** Status line, headers, a blank line and the body, like a raw HTTP response. */
-export function formatResponse({ status, statusText, headers, body }: FetchedResponse): string {
-  return [`${status} ${statusText}`.trim(), ...headers.map(([name, value]) => `${name}: ${value}`), '', body].join('\n')
+/** One `name: value` line per header, as in a raw HTTP response. */
+export function formatHeaders(headers: FetchedResponse['headers']): string {
+  return headers.map(([name, value]) => `${name}: ${value}`).join('\n')
 }
