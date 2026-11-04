@@ -6,6 +6,8 @@ import {
   removeEmptyLines,
   seededRandom,
   replaceInLines,
+  splitIntoLines,
+  unescapeWhitespace,
   shuffleLines,
   sortLines,
   splitLines,
@@ -64,5 +66,23 @@ describe('lines', () => {
     expect(replaceInLines(['a-a', 'A'], 'a', 'b', { ignoreCase: true })).toEqual(['b-b', 'b'])
     expect(() => replaceInLines(['a'], '', 'b')).toThrow(/Enter a regular expression/)
     expect(replaceInLines(['price: X'], 'X', '$1 & $&', { literal: true })).toEqual(['price: $1 & $&'])
+  })
+})
+
+describe('unescapeWhitespace', () => {
+  it('turns escapes into characters and keeps other backslashes', () => {
+    expect(unescapeWhitespace('a\\nb\\tc\\r\\\\n\\u00e5')).toBe('a\nb\tc\r\\nå')
+    expect(unescapeWhitespace('\\d+ $1')).toBe('\\d+ $1')
+  })
+})
+
+describe('splitIntoLines', () => {
+  it('splits on text, regex or case-insensitive text', () => {
+    expect(splitIntoLines(['a, b,c', 'd'], ',', { trim: true })).toEqual(['a', 'b', 'c', 'd'])
+    expect(splitIntoLines(['a1b22c'], '\\d+', { regex: true })).toEqual(['a', 'b', 'c'])
+    expect(splitIntoLines(['aXbxc'], 'x', { ignoreCase: true })).toEqual(['a', 'b', 'c'])
+    expect(splitIntoLines(['a.b'], '.')).toEqual(['a', 'b'])
+    expect(splitIntoLines(['a,,b,'], ',', { removeEmpty: true })).toEqual(['a', 'b'])
+    expect(() => splitIntoLines(['a'], '')).toThrow(/Enter a separator/)
   })
 })

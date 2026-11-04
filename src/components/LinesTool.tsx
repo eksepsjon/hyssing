@@ -9,7 +9,9 @@ import {
   shuffleLines,
   sortLines,
   sortLocales,
+  splitIntoLines,
   splitLines,
+  unescapeWhitespace,
   uniqueLines,
 } from '../tools/lines'
 import CopyButton from './CopyButton'
@@ -38,6 +40,12 @@ export default function LinesTool() {
   const [filter, setFilter] = useState('')
   const [find, setFind] = useState('')
   const [replacement, setReplacement] = useState('')
+  const [separator, setSeparator] = useState(',')
+  const [separatorRegex, setSeparatorRegex] = useState(false)
+  const [trimParts, setTrimParts] = useState(true)
+  const [escapes, setEscapes] = useState(true)
+
+  const unescape = (text: string) => (escapes ? unescapeWhitespace(text) : text)
 
   function apply(operation: (lines: string[]) => string[]) {
     try {
@@ -129,7 +137,41 @@ export default function LinesTool() {
             spellCheck={false}
             aria-label="Replacement"
           />
-          <button onClick={() => apply((lines) => replaceInLines(lines, find, replacement, { ignoreCase }))}>Replace all</button>
+          <button onClick={() => apply((lines) => replaceInLines(lines, find, unescape(replacement), { ignoreCase }))}>Replace all</button>
+        </div>
+        <div className="toolbar op-row">
+          <span className="op-label">Split</span>
+          <input
+            type="text"
+            value={separator}
+            onChange={(e) => setSeparator(e.target.value)}
+            placeholder={separatorRegex ? 'Regular expression, e.g. [,;]\\s*' : 'Separator, e.g. , or \\t'}
+            spellCheck={false}
+            aria-label="Separator"
+          />
+          <label>
+            <input type="checkbox" checked={separatorRegex} onChange={(e) => setSeparatorRegex(e.target.checked)} />
+            Regex
+          </label>
+          <label>
+            <input type="checkbox" checked={trimParts} onChange={(e) => setTrimParts(e.target.checked)} />
+            Trim parts
+          </label>
+          <button
+            onClick={() =>
+              apply((lines) =>
+                splitIntoLines(lines, separatorRegex ? separator : unescape(separator), { regex: separatorRegex, trim: trimParts, ignoreCase }),
+              )
+            }
+          >
+            Split into lines
+          </button>
+        </div>
+        <div className="toolbar">
+          <label title="In Replace and Split, type \n for a newline, \t for a tab, \r, \\ for a backslash or \uXXXX for any character">
+            <input type="checkbox" checked={escapes} onChange={(e) => setEscapes(e.target.checked)} />
+            {'Interpret \\n, \\t and other escapes'}
+          </label>
         </div>
       </div>
 

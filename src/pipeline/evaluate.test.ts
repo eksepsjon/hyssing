@@ -76,6 +76,21 @@ describe('evaluateGraph', () => {
     expect(noText.get('rep')).toEqual({ status: 'waiting', message: 'Connect input text' })
   })
 
+  it('splits into lines and replaces with escapes', async () => {
+    const results = await evaluateGraph(
+      [
+        node('in', 'input', { text: 'a, b\tc\n' }),
+        node('split', 'split', { separator: '\\t' }),
+        node('rep', 'replace', { pattern: ', ', replacement: '\\n-' }),
+        node('raw', 'replace', { pattern: ', ', replacement: '\\n', escapes: false }),
+      ],
+      [edge('in', 'split'), edge('in', 'rep'), edge('in', 'raw')],
+    )
+    expect(results.get('split')).toEqual({ status: 'ok', output: 'a, b\nc\n' })
+    expect(results.get('rep')).toEqual({ status: 'ok', output: 'a\n-b\tc\n' })
+    expect(results.get('raw')).toEqual({ status: 'ok', output: 'a\\nb\tc\n' })
+  })
+
   it('fetches only when clicked, once per click', async () => {
     const fetchMock = vi.fn(async (_url: unknown, init?: RequestInit) => new Response(JSON.stringify([{ id: 1 }, { id: 2 }]) + (init?.body ?? ''), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)

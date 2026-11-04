@@ -116,3 +116,38 @@ export function replaceInLines(
   const regex = compile(pattern, options.ignoreCase ? 'giu' : 'gu')
   return lines.map((line) => (options.literal ? line.replace(regex, () => replacement) : line.replace(regex, replacement)))
 }
+
+/**
+ * Turns the escape sequences \n, \r, \t, \\ and \uXXXX into the characters they stand for, so
+ * whitespace can be typed into a one-line field. Any other backslash is kept as is.
+ */
+export function unescapeWhitespace(text: string): string {
+  return text.replace(/\\(?:u([0-9a-fA-F]{4})|([nrt\\]))/g, (match, hex: string | undefined, char: string | undefined) => {
+    if (hex) return String.fromCharCode(parseInt(hex, 16))
+    return { n: '\n', r: '\r', t: '\t', '\\': '\\' }[char!] ?? match
+  })
+}
+
+export interface SplitOptions extends CompareOptions {
+  /** Treat the separator as a regular expression rather than plain text. */
+  regex?: boolean
+  /** Trim whitespace around each part. */
+  trim?: boolean
+  /** Drop parts that are empty (after trimming, if enabled). */
+  removeEmpty?: boolean
+}
+
+/** Splits each line at every `separator`, so every part ends up on a line of its own. */
+export function splitIntoLines(lines: string[], separator: string, options: SplitOptions = {}): string[] {
+  if (separator === '') throw new Error('Enter a separator')
+  const splitter = options.regex
+    ? compile(separator, options.ignoreCase ? 'giu' : 'gu')
+    : options.ignoreCase
+      ? new RegExp(separator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'giu')
+      : separator
+  // Capture groups in a regex separator are kept as parts; one that did not take part gives ''.
+  let parts = lines.flatMap((line) => line.split(splitter).map((part) => part ?? ''))
+  if (options.trim) parts = parts.map((part) => part.trim())
+  if (options.removeEmpty) parts = parts.filter((part) => part !== '')
+  return parts
+}
