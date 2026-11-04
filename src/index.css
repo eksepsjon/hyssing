@@ -526,6 +526,11 @@ label.file:focus-within .button {
   gap: 10px;
 }
 
+.palette-search {
+  padding: 5px 9px;
+  font-size: 0.85rem;
+}
+
 .palette p {
   margin: 0;
 }

@@ -516,3 +516,12 @@ export const nodeTypeMap = new Map(nodeTypes.map((def) => [def.type, def]))
 export function defaultParams(def: NodeTypeDef): Params {
   return Object.fromEntries(def.params.map((param) => [param.key, param.default]))
 }
+
+/** Node types matching every word of `query` in their label or category, ignoring case. */
+export function searchNodeTypes(query: string, types: NodeTypeDef[] = nodeTypes): NodeTypeDef[] {
+  const words = query.toLocaleLowerCase().split(/\s+/).filter(Boolean)
+  return types.filter((def) => {
+    const text = `${def.label} ${def.category}`.toLocaleLowerCase()
+    return words.every((word) => text.includes(word))
+  })
+}
