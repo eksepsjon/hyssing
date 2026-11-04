@@ -21,6 +21,7 @@ import { decodeJwt } from '../tools/jwt'
 import {
   filterLines,
   joinLines,
+  joinWithSeparator,
   removeEmptyLines,
   replaceInLines,
   reverseLines,
@@ -337,6 +338,21 @@ export const nodeTypes: NodeTypeDef[] = [
     ),
   },
   {
+    type: 'join',
+    label: 'Join lines',
+    category: 'Lines',
+    inputs: ['in'],
+    params: [
+      { key: 'separator', label: 'Separator', kind: 'text', default: ', ', placeholder: '(nothing)' },
+      { key: 'skipEmpty', label: 'Skip empty lines', kind: 'checkbox', default: true },
+      escapes,
+    ],
+    run: ([input], p) =>
+      joinWithSeparator(splitLines(input).lines, p.escapes ? unescapeWhitespace(p.separator as string) : (p.separator as string), {
+        skipEmpty: p.skipEmpty as boolean,
+      }),
+  },
+  {
     type: 'case',
     label: 'Change case',
     category: 'Lines',
@@ -499,4 +515,13 @@ export const nodeTypeMap = new Map(nodeTypes.map((def) => [def.type, def]))
 
 export function defaultParams(def: NodeTypeDef): Params {
   return Object.fromEntries(def.params.map((param) => [param.key, param.default]))
+}
+
+/** Node types matching every word of `query` in their label or category, ignoring case. */
+export function searchNodeTypes(query: string, types: NodeTypeDef[] = nodeTypes): NodeTypeDef[] {
+  const words = query.toLocaleLowerCase().split(/\s+/).filter(Boolean)
+  return types.filter((def) => {
+    const text = `${def.label} ${def.category}`.toLocaleLowerCase()
+    return words.every((word) => text.includes(word))
+  })
 }

@@ -151,3 +151,8 @@ export function splitIntoLines(lines: string[], separator: string, options: Spli
   if (options.removeEmpty) parts = parts.filter((part) => part !== '')
   return parts
 }
+
+/** Joins lines into one with `separator` between them, optionally skipping blank lines. */
+export function joinWithSeparator(lines: string[], separator: string, options: { skipEmpty?: boolean } = {}): string {
+  return (options.skipEmpty ? lines.filter((line) => line.trim() !== '') : lines).join(separator)
+}

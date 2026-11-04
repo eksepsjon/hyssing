@@ -5,6 +5,7 @@ import {
   joinLines,
   removeEmptyLines,
   seededRandom,
+  joinWithSeparator,
   replaceInLines,
   splitIntoLines,
   unescapeWhitespace,
@@ -84,5 +85,12 @@ describe('splitIntoLines', () => {
     expect(splitIntoLines(['a.b'], '.')).toEqual(['a', 'b'])
     expect(splitIntoLines(['a,,b,'], ',', { removeEmpty: true })).toEqual(['a', 'b'])
     expect(() => splitIntoLines(['a'], '')).toThrow(/Enter a separator/)
+  })
+})
+
+describe('joinWithSeparator', () => {
+  it('joins with a separator, optionally skipping blank lines', () => {
+    expect(joinWithSeparator(['a', '', 'b'], ', ')).toBe('a, , b')
+    expect(joinWithSeparator(['a', ' ', 'b'], '', { skipEmpty: true })).toBe('ab')
   })
 })

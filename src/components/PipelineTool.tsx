@@ -17,7 +17,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { emptyRuntime, evaluateGraph, wouldCreateCycle, type GraphEdge, type NodeResult } from '../pipeline/evaluate'
-import { defaultParams, nodeTypeMap, nodeTypes, type ParamValue } from '../pipeline/nodeTypes'
+import { defaultParams, nodeTypeMap, searchNodeTypes, type ParamValue } from '../pipeline/nodeTypes'
 import { decodePipeline, encodePipeline, type SharedPipeline } from '../pipeline/share'
 import CopyButton from './CopyButton'
 import { PipelineContext, type PipelineFlowNode } from '../pipeline/context'
@@ -104,7 +104,6 @@ function firstFreeId(nodes: PipelineFlowNode[]): number {
   return Math.max(0, ...nodes.map((node) => Number(node.id.slice(1)) || 0)) + 1
 }
 
-const categories = [...new Set(nodeTypes.map((def) => def.category))]
 
 function Editor() {
   const [initial] = useState(loadGraph)
@@ -113,6 +112,7 @@ function Editor() {
   const [results, setResults] = useState<Map<string, NodeResult>>(new Map())
   const [viewedId, setViewedId] = useState<string | undefined>(initial.nodes.at(-1)?.id)
   const nextId = useRef(firstFreeId(initial.nodes))
+  const [search, setSearch] = useState('')
   const canvas = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition, setViewport } = useReactFlow()
   const nodesInitialized = useNodesInitialized()
@@ -271,6 +271,8 @@ function Editor() {
   })
 
   const viewed = nodes.find((node) => node.id === viewedId)
+  const found = searchNodeTypes(search)
+  const categories = [...new Set(found.map((def) => def.category))]
   const viewedResult = viewed && results.get(viewed.id)
 
   return (
@@ -278,10 +280,29 @@ function Editor() {
       <div className="pipeline">
         <aside className="palette" aria-label="Nodes">
           <p className="muted small">Click to add. With a node selected, the new node is chained after it.</p>
+          <input
+            type="search"
+            className="palette-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && found.length > 0) {
+                addNode(found[0].type)
+                setSearch('')
+              } else if (e.key === 'Escape') {
+                setSearch('')
+              }
+            }}
+            placeholder="Find a node…"
+            aria-label="Find a node"
+            title="Enter adds the first match, Esc clears"
+            spellCheck={false}
+          />
+          {found.length === 0 && <p className="muted small">No nodes match “{search}”.</p>}
           {categories.map((category) => (
             <div key={category}>
               <h3>{category}</h3>
-              {nodeTypes
+              {found
                 .filter((def) => def.category === category)
                 .map((def) => (
                   <button key={def.type} onClick={() => addNode(def.type)}>

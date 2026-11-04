@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { emptyRuntime, evaluateGraph, wouldCreateCycle, type GraphEdge, type GraphNode } from './evaluate'
-import { defaultParams, nodeTypeMap, nodeTypes } from './nodeTypes'
+import { defaultParams, nodeTypeMap, nodeTypes, searchNodeTypes } from './nodeTypes'
 
 const node = (id: string, type: string, params = {}): GraphNode => ({
   id,
@@ -91,6 +91,15 @@ describe('evaluateGraph', () => {
     expect(results.get('raw')).toEqual({ status: 'ok', output: 'a\\nb\tc\n' })
   })
 
+  it('joins lines, dropping the trailing newline', async () => {
+    const results = await evaluateGraph(
+      [node('in', 'input', { text: 'a\n\nb\n' }), node('join', 'join'), node('tab', 'join', { separator: '\\t', skipEmpty: false })],
+      [edge('in', 'join'), edge('in', 'tab')],
+    )
+    expect(results.get('join')).toEqual({ status: 'ok', output: 'a, b' })
+    expect(results.get('tab')).toEqual({ status: 'ok', output: 'a\t\tb' })
+  })
+
   it('fetches only when clicked, once per click', async () => {
     const fetchMock = vi.fn(async (_url: unknown, init?: RequestInit) => new Response(JSON.stringify([{ id: 1 }, { id: 2 }]) + (init?.body ?? ''), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
@@ -151,5 +160,15 @@ describe('wouldCreateCycle', () => {
     expect(wouldCreateCycle(edges, 'c', 'a')).toBe(true)
     expect(wouldCreateCycle(edges, 'a', 'c')).toBe(false)
     expect(wouldCreateCycle(edges, 'a', 'a')).toBe(true)
+  })
+})
+
+describe('searchNodeTypes', () => {
+  it('matches every word in the label or category, ignoring case', () => {
+    expect(searchNodeTypes('').length).toBe(nodeTypes.length)
+    expect(searchNodeTypes('JOIN').map((def) => def.type)).toEqual(['join'])
+    expect(searchNodeTypes('json sort').map((def) => def.type)).toEqual(['jsonSort'])
+    expect(searchNodeTypes('base64').map((def) => def.type)).toEqual(['base64Encode', 'base64Decode'])
+    expect(searchNodeTypes('nothing like this')).toEqual([])
   })
 })

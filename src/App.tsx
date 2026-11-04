@@ -1,8 +1,15 @@
 import { Suspense, useEffect, useState } from 'react'
 import { tools } from './registry'
 
-// Old tab ids that still open the tool they were renamed to.
-const renamed: Record<string, string> = { lines: 'text' }
+// Old tab ids that still open the tool that replaced them. The text editing tools now live in Pipeline.
+const renamed: Record<string, string> = {
+  lines: 'pipeline',
+  text: 'pipeline',
+  base64: 'pipeline',
+  json: 'pipeline',
+  xml: 'pipeline',
+  markdown: 'pipeline',
+}
 
 function toolFromHash(): string {
   // A hash can carry data after the tool id, e.g. #pipeline=<shared pipeline>.
