@@ -100,6 +100,17 @@ describe('evaluateGraph', () => {
     expect(results.get('tab')).toEqual({ status: 'ok', output: 'a\t\tb' })
   })
 
+  it('gives JWT payload and header on separate outputs', async () => {
+    const token = `${btoa('{"alg":"HS256"}')}.${btoa('{"sub":"1"}')}.sig`
+    const results = await evaluateGraph(
+      [node('in', 'input', { text: token }), node('jwt', 'jwtDecode'), node('p', 'jsonMinify'), node('h', 'jsonMinify')],
+      [edge('in', 'jwt'), edge('jwt', 'p'), { source: 'jwt', target: 'h', targetPort: 0, sourcePort: 1 }],
+    )
+    expect(results.get('jwt')).toMatchObject({ status: 'ok', outputs: ['{\n  "sub": "1"\n}', '{\n  "alg": "HS256"\n}'] })
+    expect(results.get('p')).toEqual({ status: 'ok', output: '{"sub":"1"}' })
+    expect(results.get('h')).toEqual({ status: 'ok', output: '{"alg":"HS256"}' })
+  })
+
   it('fetches only when clicked, once per click', async () => {
     const fetchMock = vi.fn(async (_url: unknown, init?: RequestInit) => new Response(JSON.stringify([{ id: 1 }, { id: 2 }]) + (init?.body ?? ''), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)

@@ -31,8 +31,8 @@ function makeNode(id: string, type: string, position: XYPosition, params = {}): 
   return { id, type: 'pipeline', position, data: { type, params: { ...defaultParams(nodeTypeMap.get(type)!), ...params } } }
 }
 
-function makeEdge(source: string, target: string, port = 0): Edge {
-  return { id: `${source}->${target}:${port}`, source, target, sourceHandle: 'out', targetHandle: `in-${port}` }
+function makeEdge(source: string, target: string, port = 0, sourcePort = 0): Edge {
+  return { id: `${source}:${sourcePort}->${target}:${port}`, source, target, sourceHandle: `out-${sourcePort}`, targetHandle: `in-${port}` }
 }
 
 function exampleGraph(): { nodes: PipelineFlowNode[]; edges: Edge[] } {
@@ -53,7 +53,7 @@ function exampleGraph(): { nodes: PipelineFlowNode[]; edges: Edge[] } {
 function fromShared({ nodes, edges }: SharedPipeline): { nodes: PipelineFlowNode[]; edges: Edge[] } {
   return {
     nodes: nodes.map((node) => makeNode(node.id, node.type, node.position, node.params)),
-    edges: edges.map((edge) => makeEdge(edge.source, edge.target, edge.targetPort)),
+    edges: edges.map((edge) => makeEdge(edge.source, edge.target, edge.targetPort, edge.sourcePort)),
   }
 }
 
@@ -82,7 +82,7 @@ function loadGraph(): { nodes: PipelineFlowNode[]; edges: Edge[] } {
       const ids = new Set(nodes.map((node) => node.id))
       const edges = (saved.edges as Edge[])
         .filter((edge) => ids.has(edge.source) && ids.has(edge.target))
-        .map((edge) => makeEdge(edge.source, edge.target, portOf(edge.targetHandle)))
+        .map((edge) => makeEdge(edge.source, edge.target, portOf(edge.targetHandle), portOf(edge.sourceHandle)))
       return { nodes, edges }
     }
   } catch {
@@ -91,12 +91,18 @@ function loadGraph(): { nodes: PipelineFlowNode[]; edges: Edge[] } {
   return exampleGraph()
 }
 
+/** The port number in a handle id such as in-1 or out-0; older saved edges have a bare "out". */
 function portOf(handle: string | null | undefined): number {
-  return Number(handle?.replace('in-', '') ?? 0) || 0
+  return Number(handle?.replace(/^(in|out)-?/, '') ?? 0) || 0
 }
 
 function toGraphEdges(edges: Edge[]): GraphEdge[] {
-  return edges.map((edge) => ({ source: edge.source, target: edge.target, targetPort: portOf(edge.targetHandle) }))
+  return edges.map((edge) => ({
+    source: edge.source,
+    target: edge.target,
+    targetPort: portOf(edge.targetHandle),
+    sourcePort: portOf(edge.sourceHandle),
+  }))
 }
 
 /** Node ids are n1, n2, …; continue after the highest so imported graphs with gaps don't collide. */
@@ -113,6 +119,7 @@ function Editor() {
   const [viewedId, setViewedId] = useState<string | undefined>(initial.nodes.at(-1)?.id)
   const nextId = useRef(firstFreeId(initial.nodes))
   const [search, setSearch] = useState('')
+  const [viewedOutputPort, setViewedOutputPort] = useState(0)
   const canvas = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition, setViewport } = useReactFlow()
   const nodesInitialized = useNodesInitialized()
@@ -211,7 +218,7 @@ function Editor() {
       // An input port takes one connection; a new one replaces the old.
       setEdges((all) =>
         addEdge(
-          makeEdge(connection.source, connection.target, portOf(connection.targetHandle)),
+          makeEdge(connection.source, connection.target, portOf(connection.targetHandle), portOf(connection.sourceHandle)),
           all.filter((edge) => !(edge.target === connection.target && edge.targetHandle === connection.targetHandle)),
         ),
       ),
@@ -274,6 +281,9 @@ function Editor() {
   const found = searchNodeTypes(search)
   const categories = [...new Set(found.map((def) => def.category))]
   const viewedResult = viewed && results.get(viewed.id)
+  const viewedOutputs = viewed && nodeTypeMap.get(viewed.data.type)?.outputs
+  const viewedPort = viewedOutputs && viewedOutputPort < viewedOutputs.length ? viewedOutputPort : 0
+  const viewedText = viewedResult?.status === 'ok' ? (viewedResult.outputs?.[viewedPort] ?? viewedResult.output) : ''
 
   return (
     <PipelineContext.Provider value={actions}>
@@ -367,15 +377,24 @@ function Editor() {
         <section className="viewer">
           <div className="pane-header">
             <h2>Viewer{viewed ? `: ${nodeTypeMap.get(viewed.data.type)?.label}` : ''}</h2>
-            {viewedResult?.status === 'ok' && <CopyButton text={viewedResult.output} />}
+            {viewedResult?.status === 'ok' && <CopyButton text={viewedText} />}
           </div>
+          {viewedOutputs && (
+            <div className="output-tabs" role="tablist" aria-label="Output">
+              {viewedOutputs.map((name, port) => (
+                <button key={name} role="tab" aria-selected={port === viewedPort} className={port === viewedPort ? 'active' : ''} onClick={() => setViewedOutputPort(port)}>
+                  {name}
+                </button>
+              ))}
+            </div>
+          )}
           {!viewed && <p className="muted small">Click a node to view its full output.</p>}
           {viewedResult && viewedResult.status !== 'ok' && (
             <div className={viewedResult.status === 'error' ? 'error' : 'error waiting'} role="status">
               {viewedResult.message}
             </div>
           )}
-          {viewedResult?.status === 'ok' && <textarea value={viewedResult.output} readOnly spellCheck={false} aria-label="Viewer output" />}
+          {viewedResult?.status === 'ok' && <textarea value={viewedText} readOnly spellCheck={false} aria-label="Viewer output" />}
         </section>
       </div>
     </PipelineContext.Provider>

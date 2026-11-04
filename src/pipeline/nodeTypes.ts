@@ -64,12 +64,14 @@ export interface NodeTypeDef {
   inputs: string[]
   /** Ports that may stay unconnected; they then give an empty string and `connected[port]` is false. */
   optionalInputs?: number[]
+  /** Names of the output ports, when there is more than one; `run` then returns one string per port. */
+  outputs?: string[]
   params: ParamDef[]
   /** True for nodes whose output changes with the clock; the pipeline then re-runs every second. */
   live?: boolean
   /** Label of a button on the node; the node only does its work once it has been clicked. */
   action?: string
-  run: (inputs: string[], params: Params, context: RunContext) => string | Promise<string>
+  run: (inputs: string[], params: Params, context: RunContext) => string | string[] | Promise<string | string[]>
 }
 
 export interface RunContext {
@@ -254,7 +256,19 @@ export const nodeTypes: NodeTypeDef[] = [
   },
   { type: 'base64Encode', label: 'Base64 encode', category: 'Encode', inputs: ['in'], params: [{ key: 'urlSafe', label: 'URL-safe', kind: 'checkbox', default: false }], run: ([input], p) => encodeBase64(input, p.urlSafe as boolean) },
   { type: 'base64Decode', label: 'Base64 decode', category: 'Encode', inputs: ['in'], params: [], run: ([input]) => decodeBase64(input) },
-  { type: 'jwtDecode', label: 'JWT decode', category: 'Encode', inputs: ['in'], params: [{ key: 'part', label: 'Part', kind: 'select', default: 'payload', options: [{ value: 'payload', label: 'Payload' }, { value: 'header', label: 'Header' }] }], run: ([input], p) => JSON.stringify(decodeJwt(input)[p.part as 'payload' | 'header'], null, 2) },
+  {
+    type: 'jwtDecode',
+    label: 'JWT decode',
+    category: 'Encode',
+    inputs: ['in'],
+    // Payload first: pipelines made when this node had a Part select connected its only output.
+    outputs: ['payload', 'header'],
+    params: [],
+    run: ([input]) => {
+      const { payload, header } = decodeJwt(input)
+      return [JSON.stringify(payload, null, 2), JSON.stringify(header, null, 2)]
+    },
+  },
   { type: 'jsonFormat', label: 'JSON format', category: 'Format', inputs: ['in'], params: [indent], run: ([input], p) => formatJson(input, p.indent as string) },
   { type: 'jsonMinify', label: 'JSON minify', category: 'Format', inputs: ['in'], params: [], run: ([input]) => minifyJson(input) },
   { type: 'xmlFormat', label: 'XML format', category: 'Format', inputs: ['in'], params: [indent], run: ([input], p) => formatXml(input, p.indent as string) },
